@@ -10,17 +10,23 @@ module Users
     def create
       token = extract_token_from_header
 
-      if token && valid_token?(token)
-        # If a valid token is present, the user is already logged in
-        render json: { error: 'You are already logged in.' }, status: :bad_request
+      if token
+        if valid_token?(token)
+          # If a valid token is present, the user is already logged in
+          render json: { error: 'You are already logged in.' }, status: :bad_request
+        else
+          # If an invalid token is provided, return an error
+          render json: { error: 'Invalid token provided.' }, status: :unauthorized
+        end
       else
-        # If no valid token, proceed with login
+        # If no token, proceed with login
         self.resource = warden.authenticate!(auth_options)
         sign_in(resource_name, resource)
         yield resource if block_given?
         respond_with_authentication_token(resource)
       end
     end
+
 
     def destroy
       token = extract_token_from_header
@@ -66,10 +72,11 @@ module Users
 
       # Decode the token and check if the user exists
       decoded_token = JwtService.decode(token)
-      return false unless decoded_token
+      return false unless decoded_token && decoded_token['user_id']
 
       user = User.find_by(id: decoded_token['user_id'])
       user.present?
     end
+
   end
 end

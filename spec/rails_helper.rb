@@ -82,21 +82,6 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 end
 
-# Stub JwtService for testing
-RSpec.configure do |config|
-  config.before(:each) do
-    allow(JwtService).to receive(:encode).and_return('mock_token')
-    allow(JwtService).to receive(:decode).and_return({ 'user_id' => 1 })
-  end
-end
-
-# Stub TokenBlacklistService for testing
-RSpec.configure do |config|
-  config.before(:each) do
-    allow(TokenBlacklistService).to receive(:blacklist).and_return(true)
-    allow(TokenBlacklistService).to receive(:blacklisted?).and_return(false)
-  end
-end
 
 # At the end of spec/rails_helper.rb
 
