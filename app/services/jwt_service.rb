@@ -13,16 +13,8 @@ class JwtService
 
   def self.decode(token)
     decoded = JWT.decode(token, SECRET_KEY)[0]
-    HashWithIndifferentAccess.new decoded
+    HashWithIndifferentAccess.new(decoded)
   rescue JWT::DecodeError
     nil
-  end
-
-  def self.encode(payload)
-    # Implementation details
-  end
-
-  def self.decode(token)
-    # Implementation details
   end
 end

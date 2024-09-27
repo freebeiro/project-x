@@ -8,10 +8,18 @@ module Users
     skip_before_action :verify_signed_out_user, only: :destroy
 
     def create
-      self.resource = warden.authenticate!(auth_options)
-      sign_in(resource_name, resource)
-      yield resource if block_given?
-      respond_with_authentication_token(resource)
+      token = extract_token_from_header
+
+      if token && valid_token?(token)
+        # If a valid token is present, the user is already logged in
+        render json: { error: 'You are already logged in.' }, status: :bad_request
+      else
+        # If no valid token, proceed with login
+        self.resource = warden.authenticate!(auth_options)
+        sign_in(resource_name, resource)
+        yield resource if block_given?
+        respond_with_authentication_token(resource)
+      end
     end
 
     def destroy
@@ -30,8 +38,10 @@ module Users
       render json: {
         status: { code: 200, message: 'Logged in successfully.' },
         data: {
-          id: resource.id,
-          email: resource.email,
+          user: {
+            id: resource.id,
+            email: resource.email
+          },
           token:
         }
       }
@@ -39,6 +49,20 @@ module Users
 
     def extract_token_from_header
       request.headers['Authorization']&.split('Bearer ')&.last
+    end
+
+    def valid_token?(token)
+      return false unless token
+
+      # Check if the token is blacklisted
+      return false if TokenBlacklistService.blacklisted?(token)
+
+      # Decode the token and check if the user exists
+      decoded_token = JwtService.decode(token)
+      return false unless decoded_token
+
+      user = User.find_by(id: decoded_token['user_id'])
+      user.present?
     end
   end
 end
