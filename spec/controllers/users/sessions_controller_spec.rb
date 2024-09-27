@@ -98,24 +98,72 @@ RSpec.describe Users::SessionsController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-    before do
-      request.headers['Authorization'] = "Bearer #{token}"
+    context 'when token is valid' do
+      before do
+        request.headers['Authorization'] = "Bearer #{token}"
+      end
+
+      it 'blacklists the token and returns success message' do
+        expect(TokenBlacklistService).to receive(:blacklist).with(token).and_return(true)
+        delete :destroy
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        expect(json_response['message']).to eq('Logged out successfully')
+      end
     end
 
-    it 'blacklists the token and returns success message' do
-      expect(TokenBlacklistService).to receive(:blacklist).with(token)
-      delete :destroy
-      expect(response).to have_http_status(:success)
-      json_response = JSON.parse(response.body)
-      expect(json_response['message']).to eq('Logged out successfully')
-    end
-
-    context 'when token is missing' do
-      before { request.headers['Authorization'] = nil }
+    context 'when blacklisting fails' do
+      before do
+        request.headers['Authorization'] = "Bearer #{token}"
+        allow(TokenBlacklistService).to receive(:blacklist).and_return(false) # Simulate blacklist failure
+      end
 
       it 'returns unauthorized status' do
         delete :destroy
         expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns a no active session message' do
+        delete :destroy
+        json_response = JSON.parse(response.body)
+        expect(json_response['message']).to eq('No active session')
+      end
+    end
+
+    context 'when token is missing' do
+      before do
+        request.headers['Authorization'] = nil
+      end
+
+      it 'returns unauthorized status' do
+        delete :destroy
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns a no active session message' do
+        delete :destroy
+        json_response = JSON.parse(response.body)
+        expect(json_response['message']).to eq('No active session')
+      end
+    end
+
+    context 'when token is invalid' do
+      let(:invalid_token) { 'invalid.token.here' }
+
+      before do
+        request.headers['Authorization'] = "Bearer #{invalid_token}"
+        allow(TokenBlacklistService).to receive(:blacklist).and_return(false) # Simulate failure in token blacklisting
+      end
+
+      it 'returns unauthorized status' do
+        delete :destroy
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns an invalid token message' do
+        delete :destroy
+        json_response = JSON.parse(response.body)
+        expect(json_response['message']).to eq('No active session')
       end
     end
   end

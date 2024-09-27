@@ -24,10 +24,17 @@ module Users
 
     def destroy
       token = extract_token_from_header
-      if token && TokenBlacklistService.blacklist(token)
+
+      if token.nil? || TokenBlacklistService.blacklisted?(token) || !valid_token?(token)
+        # If no token is provided, or token is invalid or already blacklisted, return "No active session"
+        render json: { status: 401, message: 'No active session' }, status: :unauthorized
+        return
+      end
+
+      if TokenBlacklistService.blacklist(token)
         render json: { status: 200, message: 'Logged out successfully' }, status: :ok
       else
-        render json: { status: 401, message: 'Invalid or missing token' }, status: :unauthorized
+        render json: { status: 401, message: 'No active session' }, status: :unauthorized
       end
     end
 
