@@ -3,50 +3,44 @@
 require 'rails_helper'
 
 RSpec.describe Users::SessionsController, type: :controller do
+  let(:user) { create(:user, email: 'test@example.com', password: 'password123') }
+  let(:token) { JwtService.encode(user_id: user.id) }
+
   before do
     @request.env['devise.mapping'] = Devise.mappings[:user]
   end
 
-  let(:user) { create(:user, email: 'test@example.com', password: 'password123') }
-  let(:token) { JwtService.encode(user_id: user.id) }
-
   describe 'POST #create' do
-    context 'with an invalid token' do
-      let(:invalid_token) { 'invalid.token.here' }
-
-      before do
-        request.headers['Authorization'] = "Bearer #{invalid_token}"
-      end
-
-      it 'returns unauthorized status for invalid token' do
+    shared_examples 'returns unauthorized status' do
+      it 'returns unauthorized status' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
         expect(response).to have_http_status(:unauthorized)
-      end
-
-      it 'returns an invalid token message' do
-        post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = response.parsed_body
-        expect(json_response['error']).to eq('Invalid token provided.')
       end
     end
 
-    context 'with a malformed token' do
-      let(:malformed_token) { 'malformed.token' }
-
-      before do
-        request.headers['Authorization'] = "Bearer #{malformed_token}"
-      end
-
-      it 'returns unauthorized status for malformed token' do
-        post :create, params: { user: { email: user.email, password: 'password123' } }
-        expect(response).to have_http_status(:unauthorized)
-      end
-
+    shared_examples 'returns invalid token message' do
       it 'returns an invalid token message' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = response.parsed_body
-        expect(json_response['error']).to eq('Invalid token provided.')
+        expect(response.parsed_body['error']).to eq('Invalid token provided.')
       end
+    end
+
+    context 'with an invalid token' do
+      before do
+        request.headers['Authorization'] = 'Bearer invalid.token.here'
+      end
+
+      include_examples 'returns unauthorized status'
+      include_examples 'returns invalid token message'
+    end
+
+    context 'with a malformed token' do
+      before do
+        request.headers['Authorization'] = 'Bearer malformed.token'
+      end
+
+      include_examples 'returns unauthorized status'
+      include_examples 'returns invalid token message'
     end
 
     context 'with no token' do
@@ -57,15 +51,13 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a JWT token in the response' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = response.parsed_body
-        expect(json_response['data']).to include('token')
+        expect(response.parsed_body['data']).to include('token')
       end
     end
 
     context 'when already logged in' do
       before do
-        valid_token = JwtService.encode(user_id: user.id)
-        request.headers['Authorization'] = "Bearer #{valid_token}"
+        request.headers['Authorization'] = "Bearer #{token}"
       end
 
       it 'returns bad request status' do
@@ -75,8 +67,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns an already logged in message' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = response.parsed_body
-        expect(json_response['error']).to eq('You are already logged in.')
+        expect(response.parsed_body['error']).to eq('You are already logged in.')
       end
     end
   end
@@ -85,21 +76,29 @@ RSpec.describe Users::SessionsController, type: :controller do
     context 'when token is valid' do
       before do
         request.headers['Authorization'] = "Bearer #{token}"
+        allow(TokenBlacklistService).to receive(:blacklist).with(token).and_return(true)
       end
 
-      it 'blacklists the token and returns success message' do
-        expect(TokenBlacklistService).to receive(:blacklist).with(token).and_return(true)
+      it 'blacklists the token' do
+        expect(TokenBlacklistService).to receive(:blacklist).with(token)
+        delete :destroy
+      end
+
+      it 'returns success status' do
         delete :destroy
         expect(response).to have_http_status(:success)
-        json_response = response.parsed_body
-        expect(json_response['message']).to eq('Logged out successfully')
+      end
+
+      it 'returns success message' do
+        delete :destroy
+        expect(response.parsed_body['message']).to eq('Logged out successfully')
       end
     end
 
     context 'when blacklisting fails' do
       before do
         request.headers['Authorization'] = "Bearer #{token}"
-        allow(TokenBlacklistService).to receive(:blacklist).and_return(false) # Simulate blacklist failure
+        allow(TokenBlacklistService).to receive(:blacklist).and_return(false)
       end
 
       it 'returns unauthorized status' do
@@ -109,14 +108,25 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a no active session message' do
         delete :destroy
-        json_response = response.parsed_body
-        expect(json_response['message']).to eq('No active session')
+        expect(response.parsed_body['message']).to eq('No active session')
       end
     end
 
     context 'when token is missing' do
+      it 'returns unauthorized status' do
+        delete :destroy
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns a no active session message' do
+        delete :destroy
+        expect(response.parsed_body['message']).to eq('No active session')
+      end
+    end
+
+    context 'when token is invalid' do
       before do
-        request.headers['Authorization'] = nil
+        request.headers['Authorization'] = 'Bearer invalid.token.here'
       end
 
       it 'returns unauthorized status' do
@@ -126,28 +136,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a no active session message' do
         delete :destroy
-        json_response = response.parsed_body
-        expect(json_response['message']).to eq('No active session')
-      end
-    end
-
-    context 'when token is invalid' do
-      let(:invalid_token) { 'invalid.token.here' }
-
-      before do
-        request.headers['Authorization'] = "Bearer #{invalid_token}"
-        allow(TokenBlacklistService).to receive(:blacklist).and_return(false) # Simulate failure in token blacklisting
-      end
-
-      it 'returns unauthorized status' do
-        delete :destroy
-        expect(response).to have_http_status(:unauthorized)
-      end
-
-      it 'returns an invalid token message' do
-        delete :destroy
-        json_response = response.parsed_body
-        expect(json_response['message']).to eq('No active session')
+        expect(response.parsed_body['message']).to eq('No active session')
       end
     end
   end

@@ -11,19 +11,9 @@ module Users
       token = extract_token_from_header
 
       if token
-        if valid_token?(token)
-          # If a valid token is present, the user is already logged in
-          render json: { error: 'You are already logged in.' }, status: :bad_request
-        else
-          # If an invalid token is provided, return an error
-          render json: { error: 'Invalid token provided.' }, status: :unauthorized
-        end
+        handle_token_authentication(token)
       else
-        # If no token, proceed with login
-        self.resource = warden.authenticate!(auth_options)
-        sign_in(resource_name, resource)
-        yield resource if block_given?
-        respond_with_authentication_token(resource)
+        handle_regular_authentication
       end
     end
 
@@ -45,9 +35,28 @@ module Users
 
     private
 
+    def handle_token_authentication(token)
+      if valid_token?(token)
+        render json: { error: 'You are already logged in.' }, status: :bad_request
+      else
+        render json: { error: 'Invalid token provided.' }, status: :unauthorized
+      end
+    end
+
+    def handle_regular_authentication
+      self.resource = warden.authenticate!(auth_options)
+      sign_in(resource_name, resource)
+      yield resource if block_given?
+      respond_with_authentication_token(resource)
+    end
+
     def respond_with_authentication_token(resource)
       token = JwtService.encode(user_id: resource.id)
-      render json: {
+      render json: authentication_response(resource, token)
+    end
+
+    def authentication_response(resource, token)
+      {
         status: { code: 200, message: 'Logged in successfully.' },
         data: {
           user: {
