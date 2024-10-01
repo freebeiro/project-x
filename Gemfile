@@ -1,31 +1,33 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
 
-ruby "3.3.0"
+source 'https://rubygems.org'
+
+ruby '3.3.0'
 
 # Rails framework
-gem "rails", "~> 7.1.4"
+gem 'rails', '~> 7.1.4'
 
 # Database
-gem "sqlite3", ">= 1.4"
-gem "pg", "~> 1.2"
+gem 'pg', '~> 1.2'
+gem 'sqlite3', '>= 1.4'
 
 # Web server
-gem "puma", ">= 5.0"
+gem 'puma', '>= 5.0'
 
 # Authentication
-gem "devise"
+gem 'devise'
 
 # API serialization
-gem "active_model_serializers", "~> 0.10.0"
+gem 'active_model_serializers', '~> 0.10.0'
 
 # Background jobs
-gem "sidekiq"
+gem 'sidekiq'
 
 # Reduces boot times through caching; required in config/boot.rb
-gem "bootsnap", require: false
+gem 'bootsnap', require: false
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
@@ -35,20 +37,23 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 group :development, :test do
   # Debugging
-  gem "debug", platforms: %i[ mri windows ]
-  gem "byebug"
-  
+  gem 'byebug'
+  gem 'debug', platforms: %i[mri windows]
+
   # Testing
-  gem "rspec-rails"
-  gem "factory_bot_rails"
+  gem 'factory_bot_rails'
+  gem 'faker'
+  gem 'rspec-rails'
+  gem 'rubocop-factory_bot', require: false
+  gem 'rubocop-rspec', require: false
   gem 'simplecov', require: false
 end
 
 group :development do
   # Linting and Code Quality
-  gem "rubocop", require: false
-  gem "rubocop-rails", require: false
-  
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
 end
@@ -64,4 +69,3 @@ end
 # gem "bcrypt", "~> 3.1.7"
 
 gem 'jwt'
-

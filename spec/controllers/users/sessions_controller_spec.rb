@@ -25,10 +25,11 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns an invalid token message' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['error']).to eq('Invalid token provided.')
       end
     end
+
     context 'with a malformed token' do
       let(:malformed_token) { 'malformed.token' }
 
@@ -43,10 +44,11 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns an invalid token message' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['error']).to eq('Invalid token provided.')
       end
     end
+
     context 'with no token' do
       it 'logs the user in and returns success status' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
@@ -55,10 +57,11 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a JWT token in the response' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['data']).to include('token')
       end
     end
+
     context 'when already logged in' do
       before do
         valid_token = JwtService.encode(user_id: user.id)
@@ -72,7 +75,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns an already logged in message' do
         post :create, params: { user: { email: user.email, password: 'password123' } }
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['error']).to eq('You are already logged in.')
       end
     end
@@ -88,7 +91,7 @@ RSpec.describe Users::SessionsController, type: :controller do
         expect(TokenBlacklistService).to receive(:blacklist).with(token).and_return(true)
         delete :destroy
         expect(response).to have_http_status(:success)
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['message']).to eq('Logged out successfully')
       end
     end
@@ -106,7 +109,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a no active session message' do
         delete :destroy
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['message']).to eq('No active session')
       end
     end
@@ -123,7 +126,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns a no active session message' do
         delete :destroy
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['message']).to eq('No active session')
       end
     end
@@ -143,7 +146,7 @@ RSpec.describe Users::SessionsController, type: :controller do
 
       it 'returns an invalid token message' do
         delete :destroy
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['message']).to eq('No active session')
       end
     end

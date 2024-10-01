@@ -27,7 +27,6 @@ module Users
       end
     end
 
-
     def destroy
       token = extract_token_from_header
 
@@ -77,6 +76,5 @@ module Users
       user = User.find_by(id: decoded_token['user_id'])
       user.present?
     end
-
   end
 end

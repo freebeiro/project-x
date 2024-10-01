@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Users::RegistrationsController, type: :controller do
@@ -27,7 +29,7 @@ RSpec.describe Users::RegistrationsController, type: :controller do
       it 'returns a JWT token' do
         post :create, params: valid_attributes
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']).to include('token')
+        expect(response.parsed_body['data']).to include('token')
       end
     end
 
@@ -35,18 +37,14 @@ RSpec.describe Users::RegistrationsController, type: :controller do
       it 'does not create a new User' do
         expect do
           post :create, params: { user: { email: 'invalid' } }
-        end.to change(User, :count).by(0)
+        end.not_to change(User, :count)
       end
 
       it 'returns an error message' do
         post :create, params: { user: { email: 'invalid' } }
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['status']).to include('message')
+        expect(response.parsed_body['status']).to include('message')
       end
-    end
-
-    context 'with specific scenarios' do
-      # Move any other specific test cases here
     end
   end
 end

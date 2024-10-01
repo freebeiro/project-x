@@ -112,6 +112,8 @@ GEM
     factory_bot_rails (6.4.3)
       factory_bot (~> 6.4)
       railties (>= 5.0.0)
+    faker (3.4.2)
+      i18n (>= 1.8.11, < 2)
     globalid (1.2.1)
       activesupport (>= 6.1)
     i18n (1.14.6)
@@ -250,11 +252,15 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.32.3)
       parser (>= 3.3.1.0)
+    rubocop-factory_bot (2.26.1)
+      rubocop (~> 1.61)
     rubocop-rails (2.26.2)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
+    rubocop-rspec (3.0.5)
+      rubocop (~> 1.61)
     ruby-progressbar (1.13.0)
     sidekiq (7.3.2)
       concurrent-ruby (< 2)
@@ -315,13 +321,16 @@ DEPENDENCIES
   debug
   devise
   factory_bot_rails
+  faker
   jwt
   pg (~> 1.2)
   puma (>= 5.0)
   rails (~> 7.1.4)
   rspec-rails
   rubocop
+  rubocop-factory_bot
   rubocop-rails
+  rubocop-rspec
   sidekiq
   simplecov
   sqlite3 (>= 1.4)

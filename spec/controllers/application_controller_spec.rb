@@ -24,7 +24,7 @@ RSpec.describe ApplicationController, type: :controller do
         request.headers['Authorization'] = "Bearer #{token}"
         get :index
         expect(response).to have_http_status(:success)
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['message']).to eq('Authenticated')
       end
     end
@@ -34,7 +34,7 @@ RSpec.describe ApplicationController, type: :controller do
         request.headers['Authorization'] = 'Bearer invalid_token'
         get :index
         expect(response).to have_http_status(:unauthorized)
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['status']).to eq(401)
         expect(json_response['message']).to eq('Unauthorized')
       end
@@ -44,7 +44,7 @@ RSpec.describe ApplicationController, type: :controller do
       it 'returns unauthorized' do
         get :index
         expect(response).to have_http_status(:unauthorized)
-        json_response = JSON.parse(response.body)
+        json_response = response.parsed_body
         expect(json_response['status']).to eq(401)
         expect(json_response['message']).to eq('Unauthorized')
       end
