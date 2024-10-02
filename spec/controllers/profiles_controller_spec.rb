@@ -27,14 +27,20 @@ RSpec.describe ProfilesController, type: :controller do
     let(:new_name) { 'Jane Doe' }
     let(:new_age) { 25 }
 
-    it 'updates the user\'s profile' do
+    before do
       put :update, params: { profile: { name: new_name, age: new_age } }
-      expect(user.reload.profile.name).to eq(new_name)
+      user.reload
+    end
+
+    it 'updates the user\'s profile name' do
+      expect(user.profile.name).to eq(new_name)
+    end
+
+    it 'updates the user\'s profile age' do
       expect(user.profile.age).to eq(new_age)
     end
 
     it 'returns http success on successful update' do
-      put :update, params: { profile: { name: new_name, age: new_age } }
       expect(response).to have_http_status(:success)
     end
 

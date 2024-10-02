@@ -7,7 +7,7 @@ RSpec.describe Users::SessionsController, type: :controller do
   let(:token) { JwtService.encode(user_id: user.id) }
 
   before do
-    @request.env['devise.mapping'] = Devise.mappings[:user]
+    request.env['devise.mapping'] = Devise.mappings[:user]
   end
 
   describe 'POST #create' do
@@ -80,8 +80,8 @@ RSpec.describe Users::SessionsController, type: :controller do
       end
 
       it 'blacklists the token' do
-        expect(TokenBlacklistService).to receive(:blacklist).with(token)
         delete :destroy
+        expect(TokenBlacklistService).to have_received(:blacklist).with(token)
       end
 
       it 'returns success status' do

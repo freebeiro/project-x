@@ -4,13 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Profile, type: :model do
   it 'is valid with valid attributes' do
-    user = create(:user)
-    profile = described_class.new(
-      name: 'John Doe',
-      age: 25,
-      description: 'A software developer',
-      user:
-    )
+    profile = build(:profile)
     expect(profile).to be_valid
   end
 

@@ -4,15 +4,22 @@ require 'rails_helper'
 
 RSpec.describe TokenBlacklistService do
   describe '.blacklist' do
-    it 'creates a new BlacklistedToken with the given token and expiry' do
+    it 'creates a new BlacklistedToken' do
       token = 'sample_token'
       expect do
         described_class.blacklist(token)
       end.to change(BlacklistedToken, :count).by(1)
+    end
 
-      blacklisted_token = BlacklistedToken.last
-      expect(blacklisted_token.token).to eq(token)
-      expect(blacklisted_token.expires_at).to be_within(1.second).of(24.hours.from_now)
+    it 'sets the correct token value' do
+      token = 'sample_token'
+      described_class.blacklist(token)
+      expect(BlacklistedToken.last.token).to eq(token)
+    end
+
+    it 'sets the expiration time to approximately 24 hours from now' do
+      described_class.blacklist('sample_token')
+      expect(BlacklistedToken.last.expires_at).to be_within(1.second).of(24.hours.from_now)
     end
   end
 

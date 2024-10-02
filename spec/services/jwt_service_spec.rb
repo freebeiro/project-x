@@ -9,7 +9,12 @@ RSpec.describe JwtService, type: :service do
       payload = { user_id: 1 }
       token = described_class.encode(payload)
       expect(token).to be_a(String)
-      expect(token.split('.').size).to eq(3) # JWT tokens have three parts
+    end
+
+    it 'creates a token with three parts' do
+      payload = { user_id: 1 }
+      token = described_class.encode(payload)
+      expect(token.split('.').size).to eq(3)
     end
   end
 
@@ -34,7 +39,6 @@ RSpec.describe JwtService, type: :service do
     context 'with an expired token' do
       it 'returns nil' do
         payload = { 'user_id' => 1 }
-        # Correct: Passing exp as a positional argument
         token = described_class.encode(payload, 1.second.ago)
         decoded = described_class.decode(token)
         expect(decoded).to be_nil
