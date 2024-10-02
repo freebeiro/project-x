@@ -76,6 +76,7 @@ yarn-debug.log*
 !/docs
 !/lib
 !/spec
+!/scripts
 
 # Keep specific files in the root directory
 !.gitignore
