@@ -20,7 +20,8 @@ RSpec.describe User, type: :model do
   end
 
   it 'has the correct error message for underage users' do
+    underage_user = build(:user, date_of_birth: 17.years.ago)
     underage_user.valid?
-    expect(underage_user.errors[:date_of_birth]).to include('You must be 16 years or older.')
+    expect(underage_user.errors[:date_of_birth]).to include('You should be over 18 years old.')
   end
 end

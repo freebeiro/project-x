@@ -46,7 +46,7 @@ rubocop_exit_code=$?
 echo "\nTesting User Registration:"
 response=$(curl -s -X POST "${BASE_URL}/users" \
   -H "Content-Type: application/json" \
-  -d '{"user": {"email": "testuser@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"name": "Test User", "age": 23, "description": "A test user"}}' )
+  -d '{"user": {"email": "testuser@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "Test", "last_name": "User", "age": 23, "username": "testuser", "description": "A test user", "occupation": "Tester"}}' )
 check_response "$response" "Signed up successfully." "User Registration" || all_passed=false
 
 # User Registration (existing user)
@@ -85,8 +85,8 @@ echo "\nTesting Update Profile:"
 response=$(curl -s -X PUT "${BASE_URL}/profile" \
   -H "Authorization: Bearer $token" \
   -H "Content-Type: application/json" \
-  -d '{"profile": {"name": "John Doe", "age": 25, "description": "A software developer"}}')
-check_response "$response" "John Doe" "Update Profile" || all_passed=false
+  -d '{"profile": {"first_name": "John", "last_name": "Doe", "age": 25, "username": "johndoe", "description": "A software developer", "occupation": "Developer"}}')
+check_response "$response" "John" "Update Profile" || all_passed=false
 
 # View Updated Profile
 echo "\nTesting View Updated Profile:"

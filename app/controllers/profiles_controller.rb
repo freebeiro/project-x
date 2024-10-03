@@ -20,10 +20,10 @@ class ProfilesController < ApplicationController
   private
 
   def set_profile
-    @profile = @current_user.profile || @current_user.create_profile
+    @profile = current_user.profile || current_user.create_profile
   end
 
   def profile_params
-    params.require(:profile).permit(:name, :age, :description)
+    params.require(:profile).permit(:first_name, :last_name, :age, :username, :description, :occupation)
   end
 end

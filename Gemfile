@@ -49,6 +49,10 @@ group :development, :test do
   gem 'simplecov', require: false
 end
 
+group :test do
+  gem 'rails-controller-testing'
+end
+
 group :development do
   # Linting and Code Quality
   gem 'rubocop', require: false

@@ -2,9 +2,12 @@
 
 FactoryBot.define do
   factory :profile do
-    name { Faker::Name.name }
-    age { rand(18..80) }
-    description { Faker::Lorem.paragraph }
+    first_name { 'John' }
+    last_name { 'Doe' }
+    age { 25 }
+    username { Faker::Internet.unique.username }
+    description { 'A software developer' }
+    occupation { 'Developer' }
     user
   end
 end
