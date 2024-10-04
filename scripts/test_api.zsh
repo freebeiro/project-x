@@ -111,6 +111,13 @@ response=$(curl -s -X GET "${BASE_URL}/groups/${group_id}" \
   -H "Content-Type: application/json")
 check_response "$response" "Test Group" "View Group" || all_passed=false
 
+# Join Group
+echo "\nTesting Join Group:"
+response=$(curl -s -X POST "${BASE_URL}/groups/${group_id}/group_memberships" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json")
+check_response "$response" "Successfully joined the group" "Join Group" || all_passed=false
+
 # Attempt to login again (should fail as already logged in)
 echo "\nTesting Login when already logged in:"
 response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \

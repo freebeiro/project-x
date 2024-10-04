@@ -46,6 +46,36 @@ RSpec.describe Group, type: :model do
 
   it 'has many users through group memberships' do
     association = described_class.reflect_on_association(:users)
+    expect(association).not_to be_nil
+  end
+
+  it 'has users association with has_many macro' do
+    association = described_class.reflect_on_association(:users)
     expect(association.macro).to eq :has_many
+  end
+
+  it 'has users association through group_memberships' do
+    association = described_class.reflect_on_association(:users)
+    expect(association.options[:through]).to eq :group_memberships
+  end
+
+  it 'has many members as an alias for users' do
+    association = described_class.reflect_on_association(:members)
+    expect(association).not_to be_nil
+  end
+
+  it 'has members association with has_many macro' do
+    association = described_class.reflect_on_association(:members)
+    expect(association.macro).to eq :has_many
+  end
+
+  it 'has members association through group_memberships' do
+    association = described_class.reflect_on_association(:members)
+    expect(association.options[:through]).to eq :group_memberships
+  end
+
+  it 'has members association with user as source' do
+    association = described_class.reflect_on_association(:members)
+    expect(association.options[:source]).to eq :user
   end
 end

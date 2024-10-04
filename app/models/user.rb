@@ -12,6 +12,9 @@ class User < ApplicationRecord
 
   has_many :administered_groups, class_name: 'Group', foreign_key: 'admin_id', dependent: :destroy, inverse_of: :admin
 
+  has_many :group_memberships, dependent: :destroy
+  has_many :groups, through: :group_memberships
+
   private
 
   def minimum_age
