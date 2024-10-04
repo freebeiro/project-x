@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Users::RegistrationsController, type: :controller do
+  let(:request) { ActionDispatch::TestRequest.create }
+
   before do
-    @request.env['devise.mapping'] = Devise.mappings[:user]
+    request.env['devise.mapping'] = Devise.mappings[:user]
   end
 
   describe 'POST #create' do
@@ -24,29 +28,35 @@ RSpec.describe Users::RegistrationsController, type: :controller do
         end.to change(User, :count).by(1)
       end
 
-      it 'returns a JWT token' do
+      it 'returns created status' do
         post :create, params: valid_attributes
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']).to include('token')
+      end
+
+      it 'returns a JWT token' do
+        post :create, params: valid_attributes
+        expect(response.parsed_body['data']).to include('token')
       end
     end
 
     context 'with invalid parameters' do
+      let(:invalid_attributes) { { user: { email: 'invalid' } } }
+
       it 'does not create a new User' do
         expect do
-          post :create, params: { user: { email: 'invalid' } }
-        end.to change(User, :count).by(0)
+          post :create, params: invalid_attributes
+        end.not_to change(User, :count)
+      end
+
+      it 'returns unprocessable entity status' do
+        post :create, params: invalid_attributes
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns an error message' do
-        post :create, params: { user: { email: 'invalid' } }
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['status']).to include('message')
+        post :create, params: invalid_attributes
+        expect(response.parsed_body['status']).to include('message')
       end
-    end
-
-    context 'with specific scenarios' do
-      # Move any other specific test cases here
     end
   end
 end

@@ -82,7 +82,6 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 end
 
-
 # At the end of spec/rails_helper.rb
 
 RSpec.configure do |config|

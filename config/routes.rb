@@ -8,4 +8,6 @@ Rails.application.routes.draw do
 
   # Add a root route
   root 'application#index'
+
+  resource :profile, only: %i[show update]
 end
