@@ -11,5 +11,5 @@ Rails.application.routes.draw do
 
   resource :profile, only: %i[show update]
 
-  resources :groups, only: %i[create show]
+  resources :groups, only: %i[create show update]
 end

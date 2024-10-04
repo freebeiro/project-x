@@ -140,6 +140,36 @@ response=$(curl -s -X DELETE "${BASE_URL}/users/sign_out" \
   -H "Content-Type: application/json")
 check_response "$response" "No active session" "Logout when not logged in" || all_passed=false
 
+# Log in again to get a new token
+echo "\nLogging in again for group update:"
+response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "testuser@example.com","password": "password123"}}' )
+check_response "$response" "Logged in successfully" "User Login for group update" || all_passed=false
+
+# Extract new token
+new_token=$(echo $response | jq -r '.data.token')
+
+if [ -z "$new_token" ]; then
+  echo "Failed to extract new token. Cannot proceed with authenticated tests."
+  exit 1
+fi
+
+# Update Group
+echo "\nTesting Update Group:"
+response=$(curl -s -X PUT "${BASE_URL}/groups/${group_id}" \
+  -H "Authorization: Bearer $new_token" \
+  -H "Content-Type: application/json" \
+  -d '{"group": {"name": "Updated Test Group"}}')
+check_response "$response" "Group updated successfully" "Update Group" || all_passed=false
+
+# View Updated Group
+echo "\nTesting View Updated Group:"
+response=$(curl -s -X GET "${BASE_URL}/groups/${group_id}" \
+  -H "Authorization: Bearer $new_token" \
+  -H "Content-Type: application/json")
+check_response "$response" "Updated Test Group" "View Updated Group" || all_passed=false
+
 # Final result
 if $all_passed; then
     echo "\n${GREEN}All tests passed successfully!${NC}"
