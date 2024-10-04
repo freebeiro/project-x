@@ -10,4 +10,6 @@ Rails.application.routes.draw do
   root 'application#index'
 
   resource :profile, only: %i[show update]
+
+  resources :groups, only: [:create]
 end

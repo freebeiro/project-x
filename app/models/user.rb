@@ -10,6 +10,8 @@ class User < ApplicationRecord
   validates :date_of_birth, presence: true
   validate :minimum_age
 
+  has_many :administered_groups, class_name: 'Group', foreign_key: 'admin_id', dependent: :destroy, inverse_of: :admin
+
   private
 
   def minimum_age

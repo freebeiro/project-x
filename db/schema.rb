@@ -10,13 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_03_174845) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_04_161813) do
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
     t.datetime "expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["token"], name: "index_blacklisted_tokens_on_token", unique: true
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "privacy", default: "public"
+    t.integer "member_limit"
+    t.integer "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_groups_on_admin_id"
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -47,5 +58,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_03_174845) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "groups", "users", column: "admin_id"
   add_foreign_key "profiles", "users"
 end

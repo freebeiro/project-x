@@ -64,8 +64,6 @@ response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
 check_response "$response" "Logged in successfully" "User Login" || all_passed=false
 
 # Extract token for subsequent tests
-token=$(echo $response | jq -r '.data.token' )
-
 token=$(echo $response | jq -r '.data.token')
 
 if [ -z "$token" ]; then
@@ -94,6 +92,15 @@ response=$(curl -s -X GET "${BASE_URL}/profile" \
   -H "Authorization: Bearer $token" \
   -H "Content-Type: application/json")
 check_response "$response" "John Doe" "View Updated Profile" || all_passed=false
+
+# Create a Group
+echo "\nTesting Create Group:"
+response=$(curl -s -X POST "${BASE_URL}/groups" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d '{"group": {"name": "Test Group", "description": "A test group", "privacy": "public", "member_limit": 10}}')
+check_response "$response" "Group created successfully" "Create Group" || all_passed=false
+
 # Attempt to login again (should fail as already logged in)
 echo "\nTesting Login when already logged in:"
 response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \

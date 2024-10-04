@@ -8,13 +8,26 @@ class ApplicationController < ActionController::API
 
   def authenticate_user_from_token!
     token = extract_token_from_header
-    return render_unauthorized if token.nil? || TokenBlacklistService.blacklisted?(token)
+    return render_unauthorized if invalid_token?(token)
 
-    payload = JwtService.decode(token)
-    return render_unauthorized unless payload&.dig('user_id')
+    payload = decode_token(token)
+    return render_unauthorized unless payload
 
-    @current_user = User.find_by(id: payload['user_id'])
+    @current_user = find_user(payload)
     render_unauthorized unless @current_user
+  end
+
+  def invalid_token?(token)
+    token.nil? || TokenBlacklistService.blacklisted?(token)
+  end
+
+  def decode_token(token)
+    payload = JwtService.decode(token)
+    payload if payload&.dig('user_id')
+  end
+
+  def find_user(payload)
+    User.find_by(id: payload['user_id'])
   end
 
   def render_unauthorized
