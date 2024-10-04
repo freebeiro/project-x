@@ -64,4 +64,26 @@ RSpec.describe GroupsController, type: :controller do
       end
     end
   end
+
+  describe 'GET #show' do
+    let(:group) { create(:group, admin: user) }
+
+    it 'returns a success response' do
+      get :show, params: { id: group.to_param }
+      expect(response).to be_successful
+    end
+
+    it 'returns the correct group' do
+      get :show, params: { id: group.to_param }
+      json_response = response.parsed_body
+      expect(json_response['id']).to eq(group.id)
+    end
+
+    context 'when the group does not exist' do
+      it 'returns a not found response' do
+        get :show, params: { id: 'invalid_id' }
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end

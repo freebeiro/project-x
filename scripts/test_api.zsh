@@ -101,6 +101,16 @@ response=$(curl -s -X POST "${BASE_URL}/groups" \
   -d '{"group": {"name": "Test Group", "description": "A test group", "privacy": "public", "member_limit": 10}}')
 check_response "$response" "Group created successfully" "Create Group" || all_passed=false
 
+# Extract group_id from the response
+group_id=$(echo $response | jq -r '.data.id')
+
+# View Group
+echo "\nTesting View Group:"
+response=$(curl -s -X GET "${BASE_URL}/groups/${group_id}" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json")
+check_response "$response" "Test Group" "View Group" || all_passed=false
+
 # Attempt to login again (should fail as already logged in)
 echo "\nTesting Login when already logged in:"
 response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
