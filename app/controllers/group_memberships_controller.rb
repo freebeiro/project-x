@@ -8,9 +8,18 @@ class GroupMembershipsController < ApplicationController
   def create
     @membership = @group.group_memberships.build(user: @current_user)
     if @membership.save
-      render_success
+      render_success('Successfully joined the group', :created)
     else
       render_error
+    end
+  end
+
+  def destroy
+    @membership = @group.group_memberships.find_by(user: @current_user)
+    if @membership&.destroy
+      render_success('Successfully left the group', :ok)
+    else
+      render json: { error: 'You are not a member of this group' }, status: :not_found
     end
   end
 
@@ -22,8 +31,8 @@ class GroupMembershipsController < ApplicationController
     render json: { error: 'Group not found' }, status: :not_found
   end
 
-  def render_success
-    render json: { message: 'Successfully joined the group' }, status: :created
+  def render_success(message, status)
+    render json: { message: }, status:
   end
 
   def render_error

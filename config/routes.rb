@@ -12,6 +12,6 @@ Rails.application.routes.draw do
   resource :profile, only: %i[show update]
 
   resources :groups, only: %i[create show update] do
-    resources :group_memberships, only: [:create]
+    resource :group_membership, only: %i[create destroy]
   end
 end
