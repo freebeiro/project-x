@@ -22,6 +22,7 @@ abort('The Rails environment is running in production mode!') if Rails.env.produ
 # return unless Rails.env.test?
 require 'rspec/rails'
 require 'factory_bot_rails'
+require 'devise'
 
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -80,12 +81,12 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  config.include Devise::Test::ControllerHelpers, type: :controller
 end
 
 # At the end of spec/rails_helper.rb
 
 RSpec.configure do |config|
-  config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
 
   config.before(:each, type: :controller) do
