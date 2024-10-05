@@ -6,14 +6,15 @@ class FriendshipsController < ApplicationController
   before_action :set_friendship, only: [:update]
 
   def create
-    friend = User.find(params[:friend_id])
+    friend = User.find_by(id: params[:friend_id])
+    if friend.nil?
+      render json: { error: 'Friend not found' }, status: :not_found
+      return
+    end
+
     @friendship = @current_user.friendships.build(friend:)
 
-    if @friendship.save
-      render json: { message: 'Friend request sent successfully', data: @friendship }, status: :created
-    else
-      render json: { errors: @friendship.errors.full_messages }, status: :unprocessable_entity
-    end
+    save_friendship
   end
 
   def update
@@ -25,6 +26,14 @@ class FriendshipsController < ApplicationController
   end
 
   private
+
+  def save_friendship
+    if @friendship.save
+      render json: { message: 'Friend request sent successfully', data: @friendship }, status: :created
+    else
+      render json: { errors: @friendship.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
 
   def set_friendship
     @friendship = Friendship.find(params[:id])
