@@ -15,6 +15,12 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
+  has_many :friendships, dependent: :destroy
+  has_many :friends, through: :friendships
+  has_many :received_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy,
+                                  inverse_of: :friend
+  has_many :received_friends, through: :received_friendships, source: :user
+
   private
 
   def minimum_age
