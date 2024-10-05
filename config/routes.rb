@@ -14,4 +14,6 @@ Rails.application.routes.draw do
   resources :groups, only: %i[create show update] do
     resource :group_membership, only: %i[create destroy]
   end
+
+  resources :friendships, only: %i[create update]
 end

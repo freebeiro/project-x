@@ -154,6 +154,60 @@ response=$(curl -s -X DELETE "${BASE_URL}/users/sign_out" \
   -H "Content-Type: application/json")
 check_response "$response" "No active session" "Logout when not logged in" || all_passed=false
 
+# Create a second user for friendship testing
+echo "\nTesting Second User Registration:"
+response=$(curl -s -X POST "${BASE_URL}/users" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "frienduser@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "Friend", "last_name": "User", "age": 23, "username": "frienduser", "description": "A friend user", "occupation": "Tester"}}' )
+check_response "$response" "Signed up successfully." "Second User Registration" || all_passed=false
+
+# Login as the second user
+echo "\nTesting Second User Login:"
+response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "frienduser@example.com","password": "password123"}}' )
+check_response "$response" "Logged in successfully" "Second User Login" || all_passed=false
+
+# Extract token for the second user
+friend_token=$(echo $response | jq -r '.data.token')
+
+# Send a friend request (as the second user)
+echo "\nTesting Send Friend Request:"
+response=$(curl -s -X POST "${BASE_URL}/friendships" \
+  -H "Authorization: Bearer $friend_token" \
+  -H "Content-Type: application/json" \
+  -d '{"friend_id": 1}')
+check_response "$response" "Friend request sent successfully" "Send Friend Request" || all_passed=false
+
+# Extract friendship_id from the response
+friendship_id=$(echo $response | jq -r '.data.id')
+
+# Login as the first user again to get a fresh token
+echo "\nLogging in first user again:"
+response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "testuser@example.com","password": "password123"}}' )
+check_response "$response" "Logged in successfully" "First User Login Again" || all_passed=false
+
+# Extract token for the first user
+token=$(echo $response | jq -r '.data.token')
+
+# Update Friendship (accept friend request)
+echo "\nTesting Accept Friend Request:"
+response=$(curl -s -X PUT "${BASE_URL}/friendships/${friendship_id}" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d '{"friendship": {"status": "accepted"}}')
+check_response "$response" "Friend request accepted" "Accept Friend Request" || all_passed=false
+
+# Update Friendship (decline friend request)
+echo "\nTesting Decline Friend Request:"
+response=$(curl -s -X PUT "${BASE_URL}/friendships/${friendship_id}" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d '{"friendship": {"status": "declined"}}')
+check_response "$response" "Friend request declined" "Decline Friend Request" || all_passed=false
+
 # Final result
 if $all_passed; then
     echo "\n${GREEN}All tests passed successfully!${NC}"
