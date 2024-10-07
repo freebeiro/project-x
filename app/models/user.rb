@@ -15,6 +15,8 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
+  accepts_nested_attributes_for :profile
+
   private
 
   def minimum_age

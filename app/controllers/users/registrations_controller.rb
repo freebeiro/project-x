@@ -15,7 +15,8 @@ module Users
     private
 
     def sign_up_params
-      params.require(:user).permit(:email, :password, :password_confirmation, :date_of_birth)
+      params.require(:user).permit(:email, :password, :password_confirmation, :date_of_birth,
+                                   profile_attributes: %i[first_name last_name age username occupation description])
     end
 
     def render_response(resource)
@@ -45,7 +46,8 @@ module Users
         id: user.id,
         email: user.email,
         created_at: user.created_at,
-        token:
+        token:,
+        profile: user.profile
       }
     end
 
