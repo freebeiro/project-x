@@ -8,12 +8,15 @@ class ApplicationController < ActionController::API
 
   def authenticate_user_from_token!
     token = extract_token_from_header
+    Rails.logger.debug { "Token received: #{token}" }
     return render_unauthorized if invalid_token?(token)
 
     payload = decode_token(token)
+    Rails.logger.debug { "Decoded payload: #{payload}" }
     return render_unauthorized unless payload
 
     @current_user = find_user(payload)
+    Rails.logger.debug { "Current user: #{@current_user&.id}" }
     render_unauthorized unless @current_user
   end
 

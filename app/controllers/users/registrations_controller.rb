@@ -8,6 +8,7 @@ module Users
 
     def create
       build_resource(sign_up_params)
+      resource.build_profile(profile_params) if params[:profile].present?
       resource.save
       render_response(resource)
     end
@@ -15,8 +16,11 @@ module Users
     private
 
     def sign_up_params
-      params.require(:user).permit(:email, :password, :password_confirmation, :date_of_birth,
-                                   profile_attributes: %i[first_name last_name age username occupation description])
+      params.require(:user).permit(:email, :password, :password_confirmation, :date_of_birth)
+    end
+
+    def profile_params
+      params.fetch(:profile, {}).permit(:first_name, :last_name, :age, :username, :description, :occupation)
     end
 
     def render_response(resource)

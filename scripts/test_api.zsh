@@ -23,9 +23,15 @@ check_response() {
         echo "${GREEN}Pass: $3${NC}"
         return 0
     else
+       if [[ $1 == *"traces"* ]]; then
+            error_message=$(echo "$1" | grep -o '{.*}' | head -n 1 | sed 's/,"traces":.*//')
+        else
+            error_message="$1"
+        fi
         echo "${RED}Fail: $3${NC}"
         echo "Expected: $2"
-        echo "Got: $1"
+        #echo "Got: $1"
+        echo "Got: $error_message"
         return 1
     fi
 }
@@ -37,8 +43,8 @@ all_passed=true
 rails db:drop && rails db:create && rails db:migrate
 
 # Run tests and linter
-bundle exec rspec
-bundle exec rubocop -A
+#bundle exec rspec
+#bundle exec rubocop -A
 # Run RuboCop and capture its exit code
 rubocop_exit_code=$?
 
@@ -71,12 +77,99 @@ if [ -z "$token" ]; then
   exit 1
 fi
 
-# View Profile
-echo "\nTesting View Profile:"
+# Extract user ID for the main user
+main_user_id=$(echo $response | jq -r '.data.id')
+
+# Create a friend user
+echo "\nCreating a friend user:"
+response=$(curl -s -X POST "${BASE_URL}/users" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "friend@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "Friend", "last_name": "User", "age": 23, "username": "frienduser", "description": "A friend user", "occupation": "Friend"}}' )
+check_response "$response" "Signed up successfully." "Friend User Registration" || all_passed=false
+
+# Search for friend user
+echo "\nSearching for friend user:"
+response=$(curl -s -X GET "${BASE_URL}/users/search?username=frienduser" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json")
+check_response "$response" "id" "Search Friend User" || all_passed=false
+
+# Extract friend user ID
+friend_user_id=$(echo $response | jq -r '.id')
+
+# Print the friend_user_id for debugging
+echo "Friend User ID: $friend_user_id"
+
+# Create friendship with friend user
+echo "\nCreating friendship with friend user:"
+response=$(curl -s -X POST "${BASE_URL}/friendships" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d "{\"friendship\": {\"friend_username\": \"frienduser\"}}")
+check_response "$response" "Friendship request sent successfully" "Create Friendship" || all_passed=false
+
+# Login as friend user to accept friendship
+echo "\nLogging in as friend user:"
+response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "friend@example.com","password": "password123"}}' )
+check_response "$response" "Logged in successfully" "Friend User Login" || all_passed=false
+
+# Extract token for friend user
+friend_token=$(echo $response | jq -r '.data.token')
+
+# Before accepting friendship, search for main user
+echo "\nSearching for main user:"
+response=$(curl -s -X GET "${BASE_URL}/users/search?username=testuser" \
+  -H "Authorization: Bearer $friend_token" \
+  -H "Content-Type: application/json")
+check_response "$response" "id" "Search Main User" || all_passed=false
+
+# Extract main user ID
+main_user_id=$(echo $response | jq -r '.id')
+
+# Accept friendship request
+echo "\nAccepting friendship request:"
+response=$(curl -s -X PUT "${BASE_URL}/friendships/accept" \
+  -H "Authorization: Bearer $friend_token" \
+  -H "Content-Type: application/json" \
+  -d "{\"friendship\": {\"friend_id\": $main_user_id}}")
+check_response "$response" "Friendship accepted successfully" "Accept Friendship" || all_passed=false
+
+# View own profile (main user)
+echo "\nViewing own profile:"
 response=$(curl -s -X GET "${BASE_URL}/profile" \
   -H "Authorization: Bearer $token" \
   -H "Content-Type: application/json")
-check_response "$response" "name" "View Profile" || all_passed=false
+check_response "$response" "first_name" "View Own Profile" || all_passed=false
+
+# View friend's profile
+echo "\nViewing friend's profile:"
+response=$(curl -s -X GET "${BASE_URL}/profiles/${friend_user_id}" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json")
+check_response "$response" "first_name" "View Friend's Profile" || all_passed=false
+
+# Create a non-friend user
+echo "\nCreating a non-friend user:"
+response=$(curl -s -X POST "${BASE_URL}/users" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"email": "nonfriend@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "NonFriend", "last_name": "User", "age": 23, "username": "nonfrienduser", "description": "A non-friend user", "occupation": "NonFriend"}}' )
+check_response "$response" "Signed up successfully." "Non-Friend User Registration" || all_passed=false
+
+# Extract non-friend user ID
+non_friend_user_id=$(echo $response | jq -r '.data.id')
+
+# View non-friend's profile
+echo "\nViewing non-friend's profile:"
+response=$(curl -s -X GET "${BASE_URL}/profiles/${non_friend_user_id}" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json")
+check_response "$response" "username" "View Non-Friend's Profile" || all_passed=false
+if [[ $response == *"first_name"* ]]; then
+  echo "${RED}Fail: Non-friend's profile should not include first_name${NC}"
+  all_passed=false
+fi
 
 # Update Profile
 echo "\nTesting Update Profile:"

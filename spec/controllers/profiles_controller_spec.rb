@@ -4,32 +4,51 @@ require 'rails_helper'
 
 RSpec.describe ProfilesController, type: :controller do
   let(:user) { create(:user) }
-  let(:token) { JsonWebToken.encode(user_id: user.id) }
+  let(:friend) { create(:user) }
+  let(:non_friend) { create(:user) }
+  let(:profile) { create(:profile, user:) }
 
   before do
-    request.headers['Authorization'] = "Bearer #{token}"
+    sign_in user
+    create(:friendship, user:, friend:, status: 'accepted')
   end
 
   describe 'GET #show' do
-    it 'returns http success' do
-      get :show
-      expect(response).to have_http_status(:success)
+    context 'when viewing own profile' do
+      it 'returns full profile details' do
+        get :show, params: { id: profile.id }
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']).to include('username', 'photo_url', 'first_name', 'last_name')
+      end
     end
 
-    context 'when profile exists' do
-      let(:profile) { create(:profile, user:, first_name: 'John', last_name: 'Doe') }
+    context 'when viewing a friend\'s profile' do
+      let(:friend_profile) { create(:profile, user: friend) }
 
-      before do
-        profile # Create the profile
-        get :show
+      it 'returns full profile details' do
+        get :show, params: { id: friend_profile.id }
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']).to include('username', 'photo_url', 'first_name', 'last_name')
       end
+    end
 
-      it 'returns the correct profile' do
-        expect(assigns(:profile)).to eq(profile)
+    context 'when viewing a non-friend\'s profile' do
+      let(:non_friend_profile) { create(:profile, user: non_friend) }
+
+      it 'returns limited profile details' do
+        get :show, params: { id: non_friend_profile.id }
+        expect(response).to have_http_status(:ok)
+        parsed_response = response.parsed_body['data']
+        expect(parsed_response).to include('username', 'photo_url')
+        expect(parsed_response).not_to include('first_name', 'last_name')
       end
+    end
 
-      it 'returns the correct profile name' do
-        expect(response.parsed_body['name']).to eq('John Doe')
+    context 'when profile does not exist' do
+      it 'returns a not found error' do
+        get :show, params: { id: 999 }
+        expect(response).to have_http_status(:not_found)
+        expect(response.parsed_body).to have_key('error')
       end
     end
   end

@@ -4,14 +4,25 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations'
-  }, defaults: { format: :json }
+  }
 
-  # Add a root route
-  root 'application#index'
+  # Existing routes
+  resources :groups do
+    post 'group_membership', to: 'group_memberships#create'
+    delete 'group_membership', to: 'group_memberships#destroy'
+  end
 
+  # Add these new routes
+  resources :friendships, only: [:create] do
+    collection do
+      put 'accept'
+    end
+  end
+
+  resources :profiles, only: [:show]
   resource :profile, only: %i[show update]
 
-  resources :groups, only: %i[create show update] do
-    resource :group_membership, only: %i[create destroy]
-  end
+  # Keep any other existing routes
+
+  get 'users/search', to: 'users#search'
 end

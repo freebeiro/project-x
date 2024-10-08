@@ -3,15 +3,21 @@
 # Controller for managing user profiles
 class ProfilesController < ApplicationController
   before_action :authenticate_user_from_token!
-  before_action :set_profile
+  before_action :set_profile, only: %i[show update]
 
   def show
-    render json: @profile, status: :ok
+    if @profile.nil?
+      render json: { error: 'Profile not found' }, status: :not_found
+    elsif @current_user.id == @profile.user_id || @current_user.friends_with?(@profile.user)
+      render json: { data: @profile.as_json(include: :user) }, status: :ok
+    else
+      render json: { data: { username: @profile.username } }, status: :ok
+    end
   end
 
   def update
     if @profile.update(profile_params)
-      render json: @profile, status: :ok
+      render json: { data: @profile }, status: :ok
     else
       render json: { errors: @profile.errors.full_messages }, status: :unprocessable_entity
     end
@@ -20,7 +26,11 @@ class ProfilesController < ApplicationController
   private
 
   def set_profile
-    @profile = current_user.profile || current_user.create_profile
+    @profile = if params[:id]
+                 Profile.find_by(id: params[:id])
+               else
+                 @current_user.profile
+               end
   end
 
   def profile_params

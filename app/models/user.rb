@@ -17,6 +17,15 @@ class User < ApplicationRecord
 
   accepts_nested_attributes_for :profile
 
+  has_many :friendships
+  has_many :friends, through: :friendships
+
+  def friends_with?(other_user)
+    Friendship.where(user: self, friend: other_user, status: 'accepted')
+              .or(Friendship.where(user: other_user, friend: self, status: 'accepted'))
+              .exists?
+  end
+
   private
 
   def minimum_age
