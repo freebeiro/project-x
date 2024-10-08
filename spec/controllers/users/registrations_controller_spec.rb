@@ -17,8 +17,33 @@ RSpec.describe Users::RegistrationsController, type: :controller do
           password: 'password123',
           password_confirmation: 'password123',
           date_of_birth: 20.years.ago.to_date
+        },
+        profile: {
+          first_name: 'John',
+          last_name: 'Doe',
+          age: 25,
+          username: 'johndoe',
+          description: 'Test user',
+          occupation: 'Developer'
         }
       }
+    end
+
+    context 'with valid parameters including profile' do
+      it 'creates a new User with a profile' do
+        expect do
+          post :create, params: valid_attributes
+        end.to change(User, :count).by(1).and change(Profile, :count).by(1)
+      end
+
+      it 'returns created status and includes profile data' do
+        post :create, params: valid_attributes
+        expect(response).to have_http_status(:created)
+        expect(response.parsed_body['data']['profile']).to include(
+          'first_name' => 'John',
+          'last_name' => 'Doe'
+        )
+      end
     end
 
     context 'with valid parameters' do
