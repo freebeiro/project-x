@@ -21,8 +21,11 @@ class FriendshipsController < ApplicationController
     friendship = Friendship.find_by(friend: current_user, status: 'pending') ||
                  Friendship.find_by(user: current_user, friend_id: friendship_params[:friend_id], status: 'pending')
     if friendship
-      friendship.update(status: 'accepted')
-      render json: { message: 'Friendship accepted successfully' }, status: :ok
+      if friendship.update(status: 'accepted')
+        render json: { message: 'Friendship accepted successfully' }, status: :ok
+      else
+        render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
+      end
     else
       render json: { error: 'Friendship request not found' }, status: :not_found
     end

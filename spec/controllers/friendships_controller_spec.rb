@@ -29,6 +29,15 @@ RSpec.describe FriendshipsController, type: :controller do
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['error']).to eq('User not found')
       end
+
+      it 'returns unprocessable entity for invalid friendship' do
+        allow_any_instance_of(Friendship).to receive(:save).and_return(false)
+        allow_any_instance_of(Friendship).to receive(:errors).and_return(double(full_messages: ['Invalid friendship']))
+
+        post :create, params: { friendship: { friend_username: friend.profile.username } }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['errors']).to eq(['Invalid friendship'])
+      end
     end
   end
 
@@ -46,13 +55,22 @@ RSpec.describe FriendshipsController, type: :controller do
 
     context 'with invalid parameters' do
       it 'returns a not found error for non-existent friendship' do
-        # Ensure no pending friendship exists
         Friendship.where(friend: user, status: 'pending').destroy_all
         Friendship.where(user:, status: 'pending').destroy_all
 
         put :accept, params: { friendship: { friend_id: friend.id } }
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['error']).to eq('Friendship request not found')
+      end
+
+      it 'returns unprocessable entity for invalid friendship update' do
+        friendship = create(:friendship, user: friend, friend: user, status: 'pending')
+        allow_any_instance_of(Friendship).to receive(:update).and_return(false)
+        allow_any_instance_of(Friendship).to receive(:errors).and_return(double(full_messages: ['Invalid update']))
+
+        put :accept, params: { friendship: { friend_id: friend.id } }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)['errors']).to eq(['Invalid update'])
       end
     end
   end
