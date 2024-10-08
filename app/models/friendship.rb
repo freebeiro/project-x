@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Represents a friendship between users.
 class Friendship < ApplicationRecord
   belongs_to :user
   belongs_to :friend, class_name: 'User'

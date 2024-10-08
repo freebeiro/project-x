@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Controller for user-related actions
 class UsersController < ApplicationController
   before_action :authenticate_user_from_token!
 

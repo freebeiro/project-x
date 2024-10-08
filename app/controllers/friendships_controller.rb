@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # This controller manages friendship-related actions.
-
 class FriendshipsController < ApplicationController
   before_action :authenticate_user_from_token!
 

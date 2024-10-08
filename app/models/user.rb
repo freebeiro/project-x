@@ -17,7 +17,7 @@ class User < ApplicationRecord
 
   accepts_nested_attributes_for :profile
 
-  has_many :friendships
+  has_many :friendships, dependent: :destroy
   has_many :friends, through: :friendships
 
   def friends_with?(other_user)

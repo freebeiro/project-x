@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :friendship do
-    association :user
-    association :friend, factory: :user
+    user
+    friend factory: %i[user]
     status { 'pending' }
 
     trait :accepted do

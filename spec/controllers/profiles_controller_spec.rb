@@ -8,8 +8,7 @@ RSpec.describe ProfilesController, type: :controller do
   let(:non_friend) { create(:user) }
 
   before do
-    allow(controller).to receive(:authenticate_user_from_token!).and_return(true)
-    allow(controller).to receive(:current_user).and_return(user)
+    allow(controller).to receive_messages(authenticate_user_from_token!: true, current_user: user)
   end
 
   describe 'GET #show' do
@@ -21,12 +20,12 @@ RSpec.describe ProfilesController, type: :controller do
 
       it 'includes first_name in the response' do
         get :show
-        expect(JSON.parse(response.body)['data']).to include('first_name')
+        expect(response.parsed_body['data']).to include('first_name')
       end
 
       it 'includes last_name in the response' do
         get :show
-        expect(JSON.parse(response.body)['data']).to include('last_name')
+        expect(response.parsed_body['data']).to include('last_name')
       end
     end
 
@@ -44,12 +43,12 @@ RSpec.describe ProfilesController, type: :controller do
 
       it 'includes first_name in the response' do
         get :show, params: { id: friend_profile.id }
-        expect(JSON.parse(response.body)['data']).to include('first_name')
+        expect(response.parsed_body['data']).to include('first_name')
       end
 
       it 'includes last_name in the response' do
         get :show, params: { id: friend_profile.id }
-        expect(JSON.parse(response.body)['data']).to include('last_name')
+        expect(response.parsed_body['data']).to include('last_name')
       end
     end
 
@@ -63,17 +62,17 @@ RSpec.describe ProfilesController, type: :controller do
 
       it 'includes username in the response' do
         get :show, params: { id: non_friend_profile.id }
-        expect(JSON.parse(response.body)['data']).to include('username')
+        expect(response.parsed_body['data']).to include('username')
       end
 
       it 'does not include first_name in the response' do
         get :show, params: { id: non_friend_profile.id }
-        expect(JSON.parse(response.body)['data']).not_to include('first_name')
+        expect(response.parsed_body['data']).not_to include('first_name')
       end
 
       it 'does not include last_name in the response' do
         get :show, params: { id: non_friend_profile.id }
-        expect(JSON.parse(response.body)['data']).not_to include('last_name')
+        expect(response.parsed_body['data']).not_to include('last_name')
       end
     end
 
@@ -85,7 +84,7 @@ RSpec.describe ProfilesController, type: :controller do
 
       it 'includes error message in the response' do
         get :show, params: { id: 999 }
-        expect(JSON.parse(response.body)).to have_key('error')
+        expect(response.parsed_body).to have_key('error')
       end
     end
   end
