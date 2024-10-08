@@ -1,31 +1,23 @@
 # frozen_string_literal: true
 
+# This controller manages friendship-related actions.
+
 class FriendshipsController < ApplicationController
   before_action :authenticate_user_from_token!
 
   def create
-    friend = User.joins(:profile).find_by(profiles: { username: friendship_params[:friend_username] })
+    friend = find_friend
     if friend
-      friendship = current_user.friendships.build(friend:)
-      if friendship.save
-        render json: { message: 'Friendship request sent successfully' }, status: :created
-      else
-        render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
-      end
+      create_friendship(friend)
     else
       render json: { error: 'User not found' }, status: :not_found
     end
   end
 
   def accept
-    friendship = Friendship.find_by(friend: current_user, status: 'pending') ||
-                 Friendship.find_by(user: current_user, friend_id: friendship_params[:friend_id], status: 'pending')
+    friendship = find_pending_friendship
     if friendship
-      if friendship.update(status: 'accepted')
-        render json: { message: 'Friendship accepted successfully' }, status: :ok
-      else
-        render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
-      end
+      update_friendship(friendship)
     else
       render json: { error: 'Friendship request not found' }, status: :not_found
     end
@@ -35,5 +27,31 @@ class FriendshipsController < ApplicationController
 
   def friendship_params
     params.require(:friendship).permit(:friend_username, :friend_id)
+  end
+
+  def find_friend
+    User.joins(:profile).find_by(profiles: { username: friendship_params[:friend_username] })
+  end
+
+  def create_friendship(friend)
+    friendship = current_user.friendships.build(friend:)
+    if friendship.save
+      render json: { message: 'Friendship request sent successfully' }, status: :created
+    else
+      render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def find_pending_friendship
+    Friendship.find_by(friend: current_user, status: 'pending') ||
+      Friendship.find_by(user: current_user, friend_id: friendship_params[:friend_id], status: 'pending')
+  end
+
+  def update_friendship(friendship)
+    if friendship.update(status: 'accepted')
+      render json: { message: 'Friendship accepted successfully' }, status: :ok
+    else
+      render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 end

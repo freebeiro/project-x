@@ -36,9 +36,13 @@ RSpec.describe Users::RegistrationsController, type: :controller do
         end.to change(User, :count).by(1).and change(Profile, :count).by(1)
       end
 
-      it 'returns created status and includes profile data' do
+      it 'returns created status' do
         post :create, params: valid_attributes
         expect(response).to have_http_status(:created)
+      end
+
+      it 'returns includes profile data' do
+        post :create, params: valid_attributes
         expect(response.parsed_body['data']['profile']).to include(
           'first_name' => 'John',
           'last_name' => 'Doe'

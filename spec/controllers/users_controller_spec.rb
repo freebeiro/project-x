@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
@@ -9,12 +11,26 @@ RSpec.describe UsersController, type: :controller do
 
   describe 'GET #search' do
     context 'when user exists' do
-      it 'returns user information' do
+      it 'returns status ok' do
         get :search, params: { username: user.profile.username }
         expect(response).to have_http_status(:ok)
-        json_response = JSON.parse(response.body)
+      end
+
+      it 'returns user id' do
+        get :search, params: { username: user.profile.username }
+        json_response = response.parsed_body
         expect(json_response['id']).to eq(user.id)
+      end
+
+      it 'returns user email' do
+        get :search, params: { username: user.profile.username }
+        json_response = response.parsed_body
         expect(json_response['email']).to eq(user.email)
+      end
+
+      it 'returns user username' do
+        get :search, params: { username: user.profile.username }
+        json_response = response.parsed_body
         expect(json_response['username']).to eq(user.profile.username)
       end
     end
@@ -23,7 +39,11 @@ RSpec.describe UsersController, type: :controller do
       it 'returns a not found error' do
         get :search, params: { username: 'nonexistent' }
         expect(response).to have_http_status(:not_found)
-        expect(JSON.parse(response.body)['error']).to eq('User not found')
+      end
+
+      it 'returns User not found' do
+        get :search, params: { username: 'nonexistent' }
+        expect(response.parsed_body['error']).to eq('User not found')
       end
     end
   end
