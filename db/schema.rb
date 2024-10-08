@@ -10,12 +10,60 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_25_233033) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_05_011837) do
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
     t.datetime "expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_blacklisted_tokens_on_token", unique: true
+  end
+
+  create_table "friendships", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "friend_id", null: false
+    t.string "status", default: "pending"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["friend_id"], name: "index_friendships_on_friend_id"
+    t.index ["user_id", "friend_id"], name: "index_friendships_on_user_id_and_friend_id", unique: true
+    t.index ["user_id"], name: "index_friendships_on_user_id"
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["user_id", "group_id"], name: "index_group_memberships_on_user_id_and_group_id", unique: true
+    t.index ["user_id"], name: "index_group_memberships_on_user_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "privacy", default: "public"
+    t.integer "member_limit"
+    t.integer "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_groups_on_admin_id"
+  end
+
+  create_table "profiles", force: :cascade do |t|
+    t.string "name"
+    t.integer "age"
+    t.text "description"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "username"
+    t.string "occupation"
+    t.index ["user_id"], name: "index_profiles_on_user_id"
+    t.index ["username"], name: "index_profiles_on_username", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -31,4 +79,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_25_233033) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "friendships", "users"
+  add_foreign_key "friendships", "users", column: "friend_id"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "users"
+  add_foreign_key "groups", "users", column: "admin_id"
+  add_foreign_key "profiles", "users"
 end

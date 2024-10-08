@@ -1,20 +1,33 @@
+# frozen_string_literal: true
+
+# User model representing authentication
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  # Validations
+  has_one :profile, dependent: :destroy
+
   validates :date_of_birth, presence: true
-  validate :must_be_16_or_older
+  validate :minimum_age
+
+  has_many :administered_groups, class_name: 'Group', foreign_key: 'admin_id', dependent: :destroy, inverse_of: :admin
+
+  has_many :group_memberships, dependent: :destroy
+  has_many :groups, through: :group_memberships
+
+  has_many :friendships, dependent: :destroy
+  has_many :friends, through: :friendships
+  has_many :received_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy,
+                                  inverse_of: :friend
+  has_many :received_friends, through: :received_friendships, source: :user
 
   private
 
-  def must_be_16_or_older
-    return if date_of_birth.nil?
+  def minimum_age
+    return if date_of_birth.blank?
 
-    return unless date_of_birth > 16.years.ago.to_date
+    return unless date_of_birth > 18.years.ago.to_date
 
-    errors.add(:date_of_birth, 'You must be 16 years or older.')
+    errors.add(:date_of_birth, 'You should be over 18 years old.')
   end
 end
