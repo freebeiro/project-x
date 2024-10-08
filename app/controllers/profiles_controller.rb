@@ -8,7 +8,7 @@ class ProfilesController < ApplicationController
   def show
     if @profile.nil?
       render json: { error: 'Profile not found' }, status: :not_found
-    elsif @current_user.id == @profile.user_id || @current_user.friends_with?(@profile.user)
+    elsif current_user.id == @profile.user_id || current_user.friends_with?(@profile.user)
       render json: { data: @profile.as_json(include: :user) }, status: :ok
     else
       render json: { data: { username: @profile.username } }, status: :ok
@@ -29,7 +29,7 @@ class ProfilesController < ApplicationController
     @profile = if params[:id]
                  Profile.find_by(id: params[:id])
                else
-                 @current_user.profile
+                 current_user.profile
                end
   end
 
