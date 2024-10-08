@@ -89,9 +89,17 @@ end
 RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :request
 
+  def authenticate_user(user)
+    @request.env['devise.mapping'] = Devise.mappings[:user]
+    sign_in user
+    token = JwtService.encode(user_id: user.id)
+    request.headers['Authorization'] = "Bearer #{token}"
+  end
+
   config.before(:each, type: :controller) do
     @request.env['devise.mapping'] = Devise.mappings[:user]
   end
+  config.filter_run_when_matching :focus
 
   config.include FactoryBot::Syntax::Methods
 end

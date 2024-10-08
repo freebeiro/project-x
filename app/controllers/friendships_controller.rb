@@ -6,7 +6,7 @@ class FriendshipsController < ApplicationController
   def create
     friend = User.joins(:profile).find_by(profiles: { username: friendship_params[:friend_username] })
     if friend
-      friendship = @current_user.friendships.build(friend:)
+      friendship = current_user.friendships.build(friend:)
       if friendship.save
         render json: { message: 'Friendship request sent successfully' }, status: :created
       else
@@ -18,8 +18,8 @@ class FriendshipsController < ApplicationController
   end
 
   def accept
-    friendship = Friendship.find_by(friend: @current_user, status: 'pending') ||
-                 Friendship.find_by(user: @current_user, friend_id: friendship_params[:friend_id], status: 'pending')
+    friendship = Friendship.find_by(friend: current_user, status: 'pending') ||
+                 Friendship.find_by(user: current_user, friend_id: friendship_params[:friend_id], status: 'pending')
     if friendship
       friendship.update(status: 'accepted')
       render json: { message: 'Friendship accepted successfully' }, status: :ok
