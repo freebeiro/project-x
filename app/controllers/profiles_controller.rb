@@ -9,7 +9,7 @@ class ProfilesController < ApplicationController
     if @profile.nil?
       render json: { error: 'Profile not found' }, status: :not_found
     elsif current_user.id == @profile.user_id || current_user.friends_with?(@profile.user)
-      render json: { data: @profile.as_json(include: :user) }, status: :ok
+      render json: { data: @profile.as_json(include: :user, methods: :name) }, status: :ok
     else
       render json: { data: { username: @profile.username } }, status: :ok
     end

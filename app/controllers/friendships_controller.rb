@@ -14,9 +14,26 @@ class FriendshipsController < ApplicationController
   end
 
   def accept
-    friendship = find_pending_friendship
+    friendship = find_friendship
     if friendship
-      update_friendship(friendship)
+      if friendship.update(status: 'accepted')
+        render json: { message: 'Friendship accepted successfully' }, status: :ok
+      else
+        render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: 'Friendship request not found' }, status: :not_found
+    end
+  end
+
+  def decline
+    friendship = find_friendship
+    if friendship && friendship.friend == current_user
+      if friendship.update(status: 'declined')
+        render json: { message: 'Friend request declined' }, status: :ok
+      else
+        render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
+      end
     else
       render json: { error: 'Friendship request not found' }, status: :not_found
     end
@@ -41,16 +58,8 @@ class FriendshipsController < ApplicationController
     end
   end
 
-  def find_pending_friendship
-    Friendship.find_by(friend: current_user, status: 'pending') ||
-      Friendship.find_by(user: current_user, friend_id: friendship_params[:friend_id], status: 'pending')
-  end
-
-  def update_friendship(friendship)
-    if friendship.update(status: 'accepted')
-      render json: { message: 'Friendship accepted successfully' }, status: :ok
-    else
-      render json: { errors: friendship.errors.full_messages }, status: :unprocessable_entity
-    end
+  def find_friendship
+    Friendship.find_by(user_id: params[:friendship][:friend_id], friend_id: current_user.id, status: 'pending') ||
+      Friendship.find_by(user_id: current_user.id, friend_id: params[:friendship][:friend_id], status: 'pending')
   end
 end
