@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Creates the friendships table
+# This migration creates the friendships table to manage user relationships.
 class CreateFriendships < ActiveRecord::Migration[7.1]
   def change
     create_table :friendships do |t|

@@ -5,5 +5,9 @@ FactoryBot.define do
     user
     friend factory: %i[user]
     status { 'pending' }
+
+    trait :accepted do
+      status { 'accepted' }
+    end
   end
 end

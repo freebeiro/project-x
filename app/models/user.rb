@@ -15,11 +15,16 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
+  accepts_nested_attributes_for :profile
+
   has_many :friendships, dependent: :destroy
   has_many :friends, through: :friendships
-  has_many :received_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy,
-                                  inverse_of: :friend
-  has_many :received_friends, through: :received_friendships, source: :user
+
+  def friends_with?(other_user)
+    Friendship.where(user: self, friend: other_user, status: 'accepted')
+              .or(Friendship.where(user: other_user, friend: self, status: 'accepted'))
+              .exists?
+  end
 
   private
 

@@ -4,11 +4,13 @@
 class ApplicationController < ActionController::API
   include ActionController::MimeResponds
 
+  attr_reader :current_user
+
   private
 
   def authenticate_user_from_token!
     token = extract_token_from_header
-    Rails.logger.debug { "Token extracted: #{token}" }
+    Rails.logger.debug { "Token received: #{token}" }
     return render_unauthorized if invalid_token?(token)
 
     payload = decode_token(token)
@@ -18,6 +20,8 @@ class ApplicationController < ActionController::API
     @current_user = find_user(payload)
     Rails.logger.debug { "Current user: #{@current_user&.id}" }
     render_unauthorized unless @current_user
+
+    @current_user
   end
 
   def invalid_token?(token)

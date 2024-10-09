@@ -4,81 +4,121 @@ require 'rails_helper'
 
 RSpec.describe ProfilesController, type: :controller do
   let(:user) { create(:user) }
-  let(:token) { JsonWebToken.encode(user_id: user.id) }
+  let(:friend) { create(:user) }
+  let(:non_friend) { create(:user) }
 
   before do
-    request.headers['Authorization'] = "Bearer #{token}"
+    allow(controller).to receive_messages(authenticate_user_from_token!: true, current_user: user)
   end
 
   describe 'GET #show' do
-    it 'returns http success' do
-      get :show
-      expect(response).to have_http_status(:success)
+    context 'when viewing own profile' do
+      it 'returns http success' do
+        get :show
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'includes first_name in the response' do
+        get :show
+        expect(response.parsed_body['data']).to include('first_name')
+      end
+
+      it 'includes last_name in the response' do
+        get :show
+        expect(response.parsed_body['data']).to include('last_name')
+      end
     end
 
-    context 'when profile exists' do
-      let(:profile) { create(:profile, user:, first_name: 'John', last_name: 'Doe') }
+    context 'when viewing a friend\'s profile' do
+      let(:friend_profile) { friend.profile }
 
       before do
-        profile # Create the profile
-        get :show
+        create(:friendship, :accepted, user:, friend:)
       end
 
-      it 'returns the correct profile' do
-        expect(assigns(:profile)).to eq(profile)
+      it 'returns http success' do
+        get :show, params: { id: friend_profile.id }
+        expect(response).to have_http_status(:ok)
       end
 
-      it 'returns the correct profile name' do
-        expect(response.parsed_body['name']).to eq('John Doe')
+      it 'includes first_name in the response' do
+        get :show, params: { id: friend_profile.id }
+        expect(response.parsed_body['data']).to include('first_name')
+      end
+
+      it 'includes last_name in the response' do
+        get :show, params: { id: friend_profile.id }
+        expect(response.parsed_body['data']).to include('last_name')
+      end
+    end
+
+    context 'when viewing a non-friend\'s profile' do
+      let(:non_friend_profile) { non_friend.profile }
+
+      it 'returns http success' do
+        get :show, params: { id: non_friend_profile.id }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'includes username in the response' do
+        get :show, params: { id: non_friend_profile.id }
+        expect(response.parsed_body['data']).to include('username')
+      end
+
+      it 'does not include first_name in the response' do
+        get :show, params: { id: non_friend_profile.id }
+        expect(response.parsed_body['data']).not_to include('first_name')
+      end
+
+      it 'does not include last_name in the response' do
+        get :show, params: { id: non_friend_profile.id }
+        expect(response.parsed_body['data']).not_to include('last_name')
+      end
+    end
+
+    context 'when profile does not exist' do
+      it 'returns not found status' do
+        get :show, params: { id: 999 }
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'includes error message in the response' do
+        get :show, params: { id: 999 }
+        expect(response.parsed_body).to have_key('error')
       end
     end
   end
 
   describe 'PUT #update' do
-    let(:new_first_name) { 'Jane' }
-    let(:new_age) { 30 }
+    let(:new_attributes) { { first_name: 'Updated', last_name: 'Name' } }
 
-    context 'when profile exists' do
-      let(:profile) { create(:profile, user:) }
-
-      before { profile } # Reference profile to satisfy RuboCop
-
-      it "updates the user's profile first name" do
-        put :update, params: { profile: { first_name: new_first_name } }
-        expect(user.reload.profile.first_name).to eq(new_first_name)
-      end
-
-      it "updates the user's profile age" do
-        put :update, params: { profile: { age: new_age } }
-        expect(user.reload.profile.age).to eq(new_age)
-      end
-
-      it 'returns http success on successful update' do
-        put :update, params: { profile: { first_name: new_first_name } }
-        expect(response).to have_http_status(:success)
-      end
-
-      it 'returns unprocessable entity status on invalid update' do
-        put :update, params: { profile: { age: 17 } } # Age less than 18 is invalid
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'returns errors on invalid update' do
-        put :update, params: { profile: { age: 17 } } # Age less than 18 is invalid
-        expect(response.parsed_body).to have_key('errors')
-      end
+    before do
+      user.create_profile(first_name: 'Original', last_name: 'Name') unless user.profile
     end
 
-    context 'when profile does not exist' do
-      it 'creates a new profile' do
-        expect do
-          put :update, params: { profile: attributes_for(:profile) }
-        end.to change(Profile, :count).by(1)
-      end
+    it 'returns http success' do
+      put :update, params: { profile: new_attributes }
+      expect(response).to have_http_status(:ok)
+    end
 
-      it 'returns a success status' do
-        put :update, params: { profile: attributes_for(:profile) }
-        expect(response).to have_http_status(:success)
+    it 'updates the first_name' do
+      put :update, params: { profile: new_attributes }
+      user.profile.reload
+      expect(user.profile.first_name).to eq('Updated')
+    end
+
+    it 'updates the last_name' do
+      put :update, params: { profile: new_attributes }
+      user.profile.reload
+      expect(user.profile.last_name).to eq('Name')
+    end
+
+    context 'with invalid attributes' do
+      let(:invalid_attributes) { { age: 'invalid' } }
+
+      it 'returns unprocessable entity status' do
+        put :update, params: { profile: invalid_attributes }
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_05_011837) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_08_161735) do
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
     t.datetime "expires_at"
