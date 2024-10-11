@@ -13,10 +13,10 @@ Rails.application.routes.draw do
   end
 
   # Add these new routes
-  resources :friendships, only: [:create] do
+  resources :friendships, only: %i[create destroy] do
     collection do
-      put 'accept'
-      put 'decline'
+      put :accept
+      put :decline
     end
   end
 

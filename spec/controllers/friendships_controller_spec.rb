@@ -68,10 +68,10 @@ RSpec.describe FriendshipsController, type: :controller do
   end
 
   describe 'PUT #accept' do
-    context 'with valid parameters' do
-      let!(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
-      let(:valid_params) { { friendship: { friend_id: friend.id } } }
+    let!(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
+    let(:valid_params) { { friendship: { friend_id: friend.id } } }
 
+    context 'with valid parameters' do
       it 'returns status ok' do
         put :accept, params: valid_params
         expect(response).to have_http_status(:ok)
@@ -106,12 +106,12 @@ RSpec.describe FriendshipsController, type: :controller do
     end
 
     context 'with invalid friendship update' do
-      let(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
-
       before do
         allow(Friendship).to receive(:find_by).and_return(friendship)
-        errors = instance_double(ActiveModel::Errors, full_messages: ['Invalid update'])
-        allow(friendship).to receive_messages(update: false, errors:)
+        allow(friendship).to receive_messages(update: false,
+                                              errors: instance_double(
+                                                ActiveModel::Errors, full_messages: ['Invalid update']
+                                              ))
       end
 
       it 'returns unprocessable entity status' do
@@ -126,61 +126,58 @@ RSpec.describe FriendshipsController, type: :controller do
     end
   end
 
-  describe 'PUT #decline' do
-    context 'with valid parameters' do
-      let!(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
-      let(:valid_params) { { friendship: { friend_id: friend.id } } }
+  describe 'DELETE #destroy' do
+    let(:friendship) { create(:friendship, user:, friend:, status: 'accepted') }
 
-      it 'returns status ok' do
-        put :decline, params: valid_params
+    before do
+      friendship
+    end
+
+    context 'when friendship exists' do
+      it 'destroys the friendship' do
+        expect { delete :destroy, params: { id: friend.id } }.to change(Friendship, :count).by(-1)
+      end
+
+      it 'returns a success status' do
+        delete :destroy, params: { id: friend.id }
         expect(response).to have_http_status(:ok)
       end
 
       it 'returns a success message' do
-        put :decline, params: valid_params
-        expect(response.parsed_body['message']).to eq('Friend request declined')
-      end
-
-      it 'updates friendship status to declined' do
-        put :decline, params: valid_params
-        expect(friendship.reload.status).to eq('declined')
+        delete :destroy, params: { id: friend.id }
+        expect(response.parsed_body['message']).to eq('Friendship removed successfully')
       end
     end
 
-    context 'with non-existent friendship' do
-      before do
-        Friendship.where(friend: user, status: 'pending').destroy_all
-        Friendship.where(user:, status: 'pending').destroy_all
-      end
-
+    context 'when friendship does not exist' do
       it 'returns a not found status' do
-        put :decline, params: { friendship: { friend_id: friend.id } }
+        delete :destroy, params: { id: create(:user).id }
         expect(response).to have_http_status(:not_found)
       end
 
-      it 'returns a not found error message' do
-        put :decline, params: { friendship: { friend_id: friend.id } }
-        expect(response.parsed_body['error']).to eq('Friendship request not found')
+      it 'returns an error message' do
+        delete :destroy, params: { id: create(:user).id }
+        expect(response.parsed_body['error']).to eq('Friendship not found')
       end
     end
 
-    context 'with invalid friendship update' do
-      let(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
-
+    context 'when user is the friend in the friendship' do
       before do
-        allow(Friendship).to receive(:find_by).and_return(friendship)
-        errors = instance_double(ActiveModel::Errors, full_messages: ['Invalid update'])
-        allow(friendship).to receive_messages(update: false, errors:)
+        authenticate_user(friend)
       end
 
-      it 'returns unprocessable entity status' do
-        put :decline, params: { friendship: { friend_id: friend.id } }
-        expect(response).to have_http_status(:unprocessable_entity)
+      it 'destroys the friendship' do
+        expect { delete :destroy, params: { id: user.id } }.to change(Friendship, :count).by(-1)
       end
 
-      it 'returns error messages' do
-        put :decline, params: { friendship: { friend_id: friend.id } }
-        expect(response.parsed_body['errors']).to eq(['Invalid update'])
+      it 'returns a success status' do
+        delete :destroy, params: { id: user.id }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns a success message' do
+        delete :destroy, params: { id: user.id }
+        expect(response.parsed_body['message']).to eq('Friendship removed successfully')
       end
     end
   end
