@@ -41,12 +41,9 @@ class FriendshipsController < ApplicationController
   end
 
   def destroy
-    if @friendship
-      if @friendship.destroy
-        render json: { message: 'Friendship removed successfully' }, status: :ok
-      else
-        render json: { errors: @friendship.errors.full_messages }, status: :unprocessable_entity
-      end
+    if @friendship&.destroy
+      render json: { message: 'Friendship removed successfully' }, status: :ok
+
     else
       render json: { error: 'Friendship not found' }, status: :not_found
     end

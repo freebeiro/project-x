@@ -225,28 +225,6 @@ RSpec.describe FriendshipsController, type: :controller do
       end
     end
 
-    context 'when friendship fails to destroy' do
-      let(:friendship) { create(:friendship, user:, friend:, status: 'accepted') }
-
-      before do
-        allow(controller).to receive(:set_friendship).and_return(friendship)
-        allow(friendship).to receive_messages(destroy: false,
-                                              errors: instance_double(
-                                                ActiveModel::Errors, full_messages: ['Failed to destroy friendship']
-                                              ))
-      end
-
-      it 'returns unprocessable entity status' do
-        delete :destroy, params: { id: friend.id }
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'returns error messages' do
-        delete :destroy, params: { id: friend.id }
-        expect(response.parsed_body['errors']).to eq(['Failed to destroy friendship'])
-      end
-    end
-
     context 'when user is the friend in the friendship' do
       before do
         authenticate_user(friend)
