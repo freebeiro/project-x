@@ -45,6 +45,8 @@ rails db:drop && rails db:create && rails db:migrate
 # Run tests and linter
 bundle exec rspec
 bundle exec rubocop -A
+bundle exec rubocop -A
+
 # Run RuboCop and capture its exit code
 rubocop_exit_code=$?
 

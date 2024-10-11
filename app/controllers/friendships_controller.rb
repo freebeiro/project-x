@@ -3,6 +3,7 @@
 # This controller manages friendship-related actions.
 class FriendshipsController < ApplicationController
   before_action :authenticate_user_from_token!
+  before_action :set_friendship, only: [:destroy]
 
   def create
     friend = find_friend
@@ -39,6 +40,15 @@ class FriendshipsController < ApplicationController
     end
   end
 
+  def destroy
+    if @friendship&.destroy
+      render json: { message: 'Friendship removed successfully' }, status: :ok
+
+    else
+      render json: { error: 'Friendship not found' }, status: :not_found
+    end
+  end
+
   private
 
   def friendship_params
@@ -61,5 +71,12 @@ class FriendshipsController < ApplicationController
   def find_friendship
     Friendship.find_by(user_id: params[:friendship][:friend_id], friend_id: current_user.id, status: 'pending') ||
       Friendship.find_by(user_id: current_user.id, friend_id: params[:friendship][:friend_id], status: 'pending')
+  end
+
+  def set_friendship
+    @friendship = current_user.friendships.find_by(friend_id: params[:id]) ||
+                  current_user.inverse_friendships.find_by(user_id: params[:id])
+
+    render json: { error: 'Friendship not found' }, status: :not_found unless @friendship
   end
 end

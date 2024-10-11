@@ -22,11 +22,9 @@ class User < ApplicationRecord
            through: :friendships,
            source: :friend
 
-  has_many :pending_friend_requests, -> { where(status: 'pending') },
-           class_name: 'Friendship',
-           foreign_key: 'friend_id',
-           dependent: :destroy,
-           inverse_of: :friend
+  has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy,
+                                 inverse_of: :friend
+  has_many :inverse_friends, through: :inverse_friendships, source: :user
 
   def friends_with?(other_user)
     Friendship.where(user: self, friend: other_user, status: 'accepted')
