@@ -168,10 +168,10 @@ RSpec.describe FriendshipsController, type: :controller do
 
       before do
         allow(Friendship).to receive(:find_by).and_return(friendship)
-        allow(friendship).to receive(:update).and_return(false)
-        allow(friendship).to receive(:errors).and_return(
-          instance_double(ActiveModel::Errors, full_messages: ['Invalid update'])
-        )
+        allow(friendship).to receive_messages(update: false,
+                                              errors: instance_double(
+                                                ActiveModel::Errors, full_messages: ['Invalid update']
+                                              ))
       end
 
       it 'returns unprocessable entity status' do
@@ -230,10 +230,10 @@ RSpec.describe FriendshipsController, type: :controller do
 
       before do
         allow(controller).to receive(:set_friendship).and_return(friendship)
-        allow(friendship).to receive(:destroy).and_return(false)
-        allow(friendship).to receive(:errors).and_return(
-          instance_double(ActiveModel::Errors, full_messages: ['Failed to destroy friendship'])
-        )
+        allow(friendship).to receive_messages(destroy: false,
+                                              errors: instance_double(
+                                                ActiveModel::Errors, full_messages: ['Failed to destroy friendship']
+                                              ))
       end
 
       it 'returns unprocessable entity status' do
