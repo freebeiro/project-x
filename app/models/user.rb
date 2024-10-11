@@ -18,7 +18,15 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :profile
 
   has_many :friendships, dependent: :destroy
-  has_many :friends, through: :friendships
+  has_many :friends, -> { where(friendships: { status: 'accepted' }) },
+           through: :friendships,
+           source: :friend
+
+  has_many :pending_friend_requests, -> { where(status: 'pending') },
+           class_name: 'Friendship',
+           foreign_key: 'friend_id',
+           dependent: :destroy,
+           inverse_of: :friend
 
   def friends_with?(other_user)
     Friendship.where(user: self, friend: other_user, status: 'accepted')

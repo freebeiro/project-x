@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :friendships, only: [:create] do
     collection do
       put 'accept'
+      put 'decline'
     end
   end
 
