@@ -80,8 +80,6 @@ class FriendshipsController < ApplicationController
     @friendship = current_user.friendships.find_by(friend_id: params[:id]) ||
                   current_user.inverse_friendships.find_by(user_id: params[:id])
 
-    return if @friendship
-
-    render json: { error: 'Friendship not found' }, status: :not_found
+    render json: { error: 'Friendship not found' }, status: :not_found unless @friendship
   end
 end

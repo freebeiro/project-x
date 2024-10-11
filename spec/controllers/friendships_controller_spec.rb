@@ -126,6 +126,66 @@ RSpec.describe FriendshipsController, type: :controller do
     end
   end
 
+  describe 'PUT #decline' do
+    let!(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
+    let(:valid_params) { { friendship: { friend_id: friend.id } } }
+
+    context 'with valid parameters' do
+      it 'returns status ok' do
+        put :decline, params: valid_params
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns a success message' do
+        put :decline, params: valid_params
+        expect(response.parsed_body['message']).to eq('Friend request declined')
+      end
+
+      it 'updates friendship status to declined' do
+        put :decline, params: valid_params
+        expect(friendship.reload.status).to eq('declined')
+      end
+    end
+
+    context 'with non-existent friendship' do
+      before do
+        Friendship.where(friend: user, status: 'pending').destroy_all
+      end
+
+      it 'returns a not found status' do
+        put :decline, params: { friendship: { friend_id: friend.id } }
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns a not found error message' do
+        put :decline, params: { friendship: { friend_id: friend.id } }
+        expect(response.parsed_body['error']).to eq('Friendship request not found')
+      end
+    end
+
+    context 'with invalid friendship update' do
+      let(:friendship) { create(:friendship, user: friend, friend: user, status: 'pending') }
+
+      before do
+        allow(Friendship).to receive(:find_by).and_return(friendship)
+        allow(friendship).to receive(:update).and_return(false)
+        allow(friendship).to receive(:errors).and_return(
+          instance_double(ActiveModel::Errors, full_messages: ['Invalid update'])
+        )
+      end
+
+      it 'returns unprocessable entity status' do
+        put :decline, params: valid_params
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns error messages' do
+        put :decline, params: valid_params
+        expect(response.parsed_body['errors']).to eq(['Invalid update'])
+      end
+    end
+  end
+
   describe 'DELETE #destroy' do
     let(:friendship) { create(:friendship, user:, friend:, status: 'accepted') }
 
@@ -150,14 +210,40 @@ RSpec.describe FriendshipsController, type: :controller do
     end
 
     context 'when friendship does not exist' do
+      before do
+        allow(controller).to receive(:set_friendship).and_return(nil)
+      end
+
       it 'returns a not found status' do
-        delete :destroy, params: { id: create(:user).id }
+        delete :destroy, params: { id: 999 }
         expect(response).to have_http_status(:not_found)
       end
 
       it 'returns an error message' do
-        delete :destroy, params: { id: create(:user).id }
+        delete :destroy, params: { id: 999 }
         expect(response.parsed_body['error']).to eq('Friendship not found')
+      end
+    end
+
+    context 'when friendship fails to destroy' do
+      let(:friendship) { create(:friendship, user:, friend:, status: 'accepted') }
+
+      before do
+        allow(controller).to receive(:set_friendship).and_return(friendship)
+        allow(friendship).to receive(:destroy).and_return(false)
+        allow(friendship).to receive(:errors).and_return(
+          instance_double(ActiveModel::Errors, full_messages: ['Failed to destroy friendship'])
+        )
+      end
+
+      it 'returns unprocessable entity status' do
+        delete :destroy, params: { id: friend.id }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns error messages' do
+        delete :destroy, params: { id: friend.id }
+        expect(response.parsed_body['errors']).to eq(['Failed to destroy friendship'])
       end
     end
 
