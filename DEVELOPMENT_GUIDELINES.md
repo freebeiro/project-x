@@ -4,7 +4,7 @@ This document outlines the development guidelines for the SW Dev Group Dating Ap
 
 ## Critical Development Rules
 
-The following rules are to be strictly followed without exception:
+The following rules are to be strictly followed without exception, as defined in the Critical Rules section of `.cursorrules`:
 
 1. **Avoid Code Duplication at All Costs**: 
    - Before implementing new logic, thoroughly check if similar functionality already exists
@@ -14,7 +14,7 @@ The following rules are to be strictly followed without exception:
 2. **Strict File Size Limit**:
    - No file may exceed 150 lines of code under ANY circumstances
    - If a file approaches this limit, it must be split into multiple files with focused responsibilities
-   - This rule enforces the Single Responsibility Principle
+   - This rule enforces the Single Responsibility Principle (see SOLID_PRINCIPLES.md)
 
 3. **Comprehensive Testing Requirements**:
    - All code must have associated specs with proper test coverage
@@ -47,12 +47,8 @@ The following rules are to be strictly followed without exception:
    - Final review should remove anything not essential for the feature
 
 9. **Completion Requirements**:
-   - Testing: All tests pass
-   - Coverage: Meets minimum requirements
-   - Quality: Passes RuboCop without warnings
-   - Integration: All curl tests pass
-   - Documentation: Updated for all changes
-   - Version Control: Properly committed following workflow
+   - Follow the Definition of Done in `.cursorrules` to determine when a feature is complete
+   - Ensure all criteria are met before submitting for final review
 
 ## Table of Contents
 
@@ -84,14 +80,14 @@ The following rules are to be strictly followed without exception:
    - Plan how to implement without duplicating logic
 
 2. **Create Feature Branch**: 
-   - Create a branch from `main` using format `feature/feature-name`
+   - Create a branch from `main` using format `feature/feature-name` (follow Git Workflow in `.cursorrules`)
    - Keep branches focused on a single feature
 
 3. **Design**: 
    - Plan your implementation, considering architecture and interfaces
    - Identify files that may need to be created or modified
    - Ensure new files will adhere to the 150-line limit
-   - Design with reuse in mind
+   - Design with reuse in mind (see Code Reuse strategy in SOLID_PRINCIPLES.md)
 
 4. **Test-Driven Development**:
    - Write failing tests first (both unit and API tests)
@@ -141,7 +137,7 @@ The following rules are to be strictly followed without exception:
 - Follow the [Ruby Style Guide](https://github.com/rubocop/ruby-style-guide)
 - Run RuboCop before committing: `bundle exec rubocop`
 - Maximum method length: 10 lines
-- Maximum class length: 100 lines
+- Maximum class length: 100 lines (remember the strict 150-line file limit)
 - Use meaningful variable names
 
 ### Rails Conventions
