@@ -29,6 +29,10 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
+# Ignore all SQLite database files
+*.sqlite3
+*.sqlite3-journal
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
@@ -67,6 +71,10 @@ yarn-debug.log*
 # Ignore Spring files
 /spring/*.pid
 
+# Ignore tool versions files
+.tool-versions
+**/.tool-versions
+
 # Keep only specific directories
 /*
 !/app
@@ -86,3 +94,6 @@ yarn-debug.log*
 !README.md
 !Rakefile
 !config.ru
+!SOLID_PRINCIPLES.md
+!DEVELOPMENT_GUIDELINES.md
+!.cursorrules
