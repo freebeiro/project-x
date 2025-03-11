@@ -1,0 +1,74 @@
+# SW Dev Group Dating App - App Code Rules for AI Assistant
+
+## Code Organization and Structure
+
+- Follow Rails MVC architecture strictly
+- Use service objects for complex business logic
+- Use concerns for shared functionality across models/controllers
+- Keep controllers thin, models fat, but not too fat
+- Use presenters or serializers for complex view data
+- Place form objects in `app/forms` for complex form handling
+- Use validators in `app/validators` for complex validations
+- Organize code by feature when appropriate
+
+## Rails-Specific Guidelines
+
+- Follow Rails naming conventions for all files and classes
+- Use strong parameters in controllers for all input
+- Avoid using `update_attribute` (bypasses validations)
+- Prefer `find_by` over `where().first`
+- Use scopes for common queries
+- Ensure proper database indexing for commonly queried fields
+- Use transactions for operations that should be atomic
+- Implement proper error handling in controllers
+- Use concerns for shared controller functionality
+- Avoid n+1 queries using includes/eager_loading
+- Use background jobs for long-running tasks
+
+## SOLID Principles Implementation
+
+### Single Responsibility Principle (SRP)
+- Each class should have only one reason to change
+- Extract complex query logic to query objects
+- Extract complex business logic to service objects
+- Use form objects for complex form processing
+
+### Open/Closed Principle (OCP)
+- Design classes that can be extended without modifying them
+- Use inheritance and modules appropriately
+- Prefer composition over inheritance when suitable
+
+### Liskov Substitution Principle (LSP)
+- Subclasses should be substitutable for their base classes
+- Maintain consistent behavior in inheritance hierarchies
+- Avoid violating parent class contracts in subclasses
+
+### Interface Segregation Principle (ISP)
+- Keep interfaces focused and minimal
+- Clients should not depend on methods they don't use
+- Create specific, targeted interfaces rather than general ones
+
+### Dependency Inversion Principle (DIP)
+- Depend on abstractions, not concretions
+- Use dependency injection when appropriate
+- High-level modules should not depend on low-level modules
+
+## Performance Considerations
+
+- Be mindful of database query performance
+- Use bulk operations when working with multiple records
+- Consider using counter caches for counts
+- Use pagination for large data sets
+- Use proper caching strategies
+- Be careful with memory usage in background jobs
+
+## Security Guidelines
+
+- Sanitize all user inputs
+- Use strong parameters consistently
+- Implement proper authorization checks
+- Avoid SQL injection by using parameterized queries
+- Protect against CSRF attacks
+- Follow secure password practices
+- Be careful with sensitive data exposure
+- Implement proper authentication and session management

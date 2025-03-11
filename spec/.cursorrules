@@ -1,0 +1,79 @@
+# SW Dev Group Dating App - Testing Rules for AI Assistant
+
+## General Testing Guidelines
+
+- Follow Test-Driven Development (TDD) principles when possible
+- Write tests before implementing features
+- Aim for at least 95% test coverage
+- Tests should be deterministic (no random failures)
+- Keep tests fast and efficient
+- Each test should have a single assertion/purpose
+- Tests should be independent of each other
+- Use meaningful test descriptions
+- Follow the Arrange-Act-Assert pattern
+- Don't test private methods directly
+
+## RSpec Guidelines
+
+- Use RSpec's `describe` for classes, `context` for scenarios
+- Use descriptive `it` blocks that read like sentences
+- Group related tests with context blocks
+- Use `let` and `let!` for test data preparation
+- Use shared examples for common test patterns
+- Use factories (FactoryBot) instead of fixtures
+- Mock external services and dependencies
+- Test both happy paths and edge cases
+- Use `subject` for the object under test
+- Use appropriate matchers for readability
+
+## Controller Testing
+
+- Test each controller action independently
+- Verify correct HTTP status codes
+- Verify correct response body/JSON structure
+- Test authorization/authentication requirements
+- Test parameter validation
+- Test error responses
+- Use request specs over controller specs when appropriate
+
+## Model Testing
+
+- Test validations
+- Test associations
+- Test scopes
+- Test custom methods
+- Test callbacks if present
+- Use factories to create test objects
+
+## Service Object Testing
+
+- Test each public method
+- Test edge cases and error conditions
+- Mock dependencies when appropriate
+- Test the service's integration with other components
+
+## API Integration Testing
+
+- Use the provided curl test script to verify all endpoints
+- Test authentication and authorization
+- Test error responses
+- Test rate limiting if implemented
+- Test with various input combinations
+- Verify correct JSON structure
+- Verify correct HTTP status codes
+
+## Test Data Management
+
+- Use FactoryBot for creating test data
+- Use traits for different scenarios
+- Clean up the database between tests
+- Use transactions to speed up tests
+- Seed test-specific data when needed
+
+## Continuous Integration
+
+- All tests must pass before merging
+- Run RuboCop alongside tests
+- Check test coverage metrics
+- Run the API curl test script as final verification
+- Address flaky tests immediately

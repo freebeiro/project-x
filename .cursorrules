@@ -1,0 +1,42 @@
+# SW Dev Group Dating App - Root Rules for AI Assistant
+
+## General Best Practices
+
+- Prefer simple, readable solutions over complex ones
+- Avoid code duplication; use shared code where appropriate
+- Keep files under 200-300 lines; refactor if necessary
+- Validate all user inputs before processing
+- Always consider security implications of code changes
+- Follow Rails naming conventions and directory structure
+- Ensure code is GDPR, CCPA, and COPPA compliant
+- Add appropriate error handling for all operations
+- Comment complex logic but keep comments minimal and meaningful
+- Read existing code before making changes
+- Make surgical changes rather than wholesale rewrites
+
+## Git Workflow
+
+- Use feature branches for new features (format: `feature/feature-name`)
+- Use bugfix branches for bug fixes (format: `bugfix/issue-description`)
+- Write clear, descriptive commit messages in imperative mood
+- Keep commits focused on single logical changes
+- Rebase feature branches on main before submitting pull requests
+- No direct commits to main branch
+- Reference issue numbers in commit messages when applicable
+- Pull requests should be reviewed before merging
+
+## Definition of Done
+
+- Code meets all requirements specified in the issue/task
+- All tests pass (RSpec unit tests and API test script)
+- New features include appropriate tests (unit, controller, integration)
+- Code passes all RuboCop checks with no warnings
+- Documentation is updated (README, API docs, comments)
+- Code is reviewed by at least one other developer
+- Performance implications have been considered
+- Security implications have been considered
+- The curl script passes all endpoint tests
+- Database migrations are reversible
+- No hardcoded sensitive data or credentials
+
+Remember to maintain a focus on the SOLID principles in all code changes. See SOLID_PRINCIPLES.md for detailed guidelines. 
