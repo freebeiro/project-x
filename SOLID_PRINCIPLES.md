@@ -2,6 +2,37 @@
 
 This document provides guidance on implementing SOLID principles in the SW Dev Group Dating App backend. These principles help create maintainable, flexible, and robust code.
 
+## Critical Implementation Guidelines
+
+The following critical implementation guidelines are directly tied to SOLID principles and must be strictly followed:
+
+### 150-Line Limit and Single Responsibility Principle
+
+The strict 150-line limit per file directly supports the Single Responsibility Principle by:
+- Forcing classes to focus on a single responsibility
+- Preventing the accumulation of unrelated functionality
+- Making code more modular and maintainable
+- Encouraging proper separation of concerns
+
+When a file approaches the 150-line limit, it's a strong indicator that it's handling multiple responsibilities and should be split into separate components.
+
+### Code Reuse and SOLID Principles
+
+Avoiding code duplication is fundamental to several SOLID principles:
+- **Single Responsibility**: Reusing code ensures functionality exists in only one place
+- **Open/Closed**: Properly reusing code means extending behavior without modification
+- **Liskov Substitution**: Reusable components must maintain consistent behavior
+- **Interface Segregation**: Well-designed reusable interfaces focus on specific needs
+- **Dependency Inversion**: Reusable components depend on abstractions, not details
+
+### Implementation Strategy for Code Reuse
+
+1. **Identify Existing Functionality**: Before implementing new code, thoroughly search the codebase for similar functionality
+2. **Extract Common Patterns**: If functionality exists but isn't reusable, refactor it first
+3. **Design for Reuse**: Create components with clear interfaces and single responsibilities
+4. **Composition Over Inheritance**: Prefer composition for code reuse when appropriate
+5. **Document Reusable Components**: Ensure reusable components are well-documented
+
 ## Table of Contents
 
 1. [Single Responsibility Principle (SRP)](#single-responsibility-principle-srp)

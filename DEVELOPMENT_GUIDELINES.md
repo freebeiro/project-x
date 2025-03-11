@@ -2,6 +2,58 @@
 
 This document outlines the development guidelines for the SW Dev Group Dating App backend. Following these guidelines ensures a consistent, maintainable, and high-quality codebase.
 
+## Critical Development Rules
+
+The following rules are to be strictly followed without exception:
+
+1. **Avoid Code Duplication at All Costs**: 
+   - Before implementing new logic, thoroughly check if similar functionality already exists
+   - Refactor and reuse existing code even if it requires modification
+   - Functionality duplication is considered a violation even if the implementation is different
+
+2. **Strict File Size Limit**:
+   - No file may exceed 150 lines of code under ANY circumstances
+   - If a file approaches this limit, it must be split into multiple files with focused responsibilities
+   - This rule enforces the Single Responsibility Principle
+
+3. **Comprehensive Testing Requirements**:
+   - All code must have associated specs with proper test coverage
+   - Minimum test coverage for new code: 95%
+   - Every feature must include both unit and integration tests
+
+4. **Real-world Testing**:
+   - All API endpoints must have corresponding curl request tests
+   - The test script must pass all tests before a feature is considered complete
+   - Tests must cover both happy paths and edge cases
+
+5. **No Extraneous Code**:
+   - Do not add code that isn't directly related to the requirements
+   - This includes logging, comments, or even minor changes
+   - Obtain express permission before adding anything beyond the immediate requirements
+
+6. **Documentation**:
+   - Every new file requires documentation explaining its purpose
+   - Update documentation for any meaningful changes to existing files
+   - Document the purpose, inputs, outputs, and side effects of classes and methods
+
+7. **Implementation Methodology**:
+   - When an implementation attempt fails, document what didn't work before trying again
+   - Explain the new approach and reasoning before proceeding
+   - Remove failed implementation code before attempting a new approach
+
+8. **Code Cleanliness**:
+   - Delete temporary/testing scripts after use
+   - Remove unnecessary code after implementation
+   - Final review should remove anything not essential for the feature
+
+9. **Completion Requirements**:
+   - Testing: All tests pass
+   - Coverage: Meets minimum requirements
+   - Quality: Passes RuboCop without warnings
+   - Integration: All curl tests pass
+   - Documentation: Updated for all changes
+   - Version Control: Properly committed following workflow
+
 ## Table of Contents
 
 1. [Development Workflow](#development-workflow)
@@ -26,16 +78,61 @@ This document outlines the development guidelines for the SW Dev Group Dating Ap
 
 ### Feature Development Process
 
-1. **Understand Requirements**: Fully understand the requirements before starting
-2. **Create Feature Branch**: Create a branch from `main`
-3. **Design**: Plan your implementation, considering architecture and interfaces
+1. **Understand Requirements**: 
+   - Fully understand the requirements before starting
+   - Identify existing code that might provide similar functionality
+   - Plan how to implement without duplicating logic
+
+2. **Create Feature Branch**: 
+   - Create a branch from `main` using format `feature/feature-name`
+   - Keep branches focused on a single feature
+
+3. **Design**: 
+   - Plan your implementation, considering architecture and interfaces
+   - Identify files that may need to be created or modified
+   - Ensure new files will adhere to the 150-line limit
+   - Design with reuse in mind
+
 4. **Test-Driven Development**:
-   - Write failing tests first
+   - Write failing tests first (both unit and API tests)
+   - Create curl test cases for API endpoints
    - Implement functionality to make tests pass
-   - Refactor code
-5. **Code Review**: Submit PR for code review
-6. **Testing**: Ensure all automated tests pass
-7. **Deployment**: Merge to `main` after approval
+   - Continuously run tests to ensure no regressions
+
+5. **Implementation**:
+   - Reuse existing code wherever possible
+   - Keep files under 150 lines
+   - If an implementation approach fails, document it and remove the code before trying a new approach
+   - Add only code directly related to requirements
+   - Document all new files and significant changes
+
+6. **Code Review Preparation**:
+   - Run all tests to ensure they pass
+   - Verify test coverage meets minimum requirements
+   - Run RuboCop and fix any issues
+   - Run the curl test script to verify endpoints
+   - Remove any unnecessary code or debugging tools
+   - Review all changes for compliance with guidelines
+
+7. **Code Review**: 
+   - Submit PR for code review with clear description
+   - Address all feedback
+   - Re-run tests after making changes
+
+8. **Documentation**:
+   - Ensure all new files are documented
+   - Update documentation for modified files
+   - Document API changes if applicable
+
+9. **Final Verification**:
+   - Run all tests one final time
+   - Verify everything works with the test script
+   - Check for any remaining unnecessary code
+
+10. **Merge and Deploy**: 
+    - Merge to `main` after approval
+    - Deploy following deployment process
+    - Monitor for any issues
 
 ## Code Style and Standards
 
