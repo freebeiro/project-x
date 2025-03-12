@@ -1,0 +1,62 @@
+# Database Functions and Procedures
+
+## Description
+
+Guidelines for creating and using SQL functions and procedures in PostgreSQL.
+
+## Globs
+
+**/*.sql
+**/db/functions/*.rb
+**/db/functions/*.sql
+
+## Rules
+
+### Function Design
+
+- Use descriptive names for functions that clearly indicate purpose
+- Follow snake_case naming convention
+- Properly document all parameters and return values
+- Handle errors gracefully with appropriate exception blocks
+- Use appropriate permission settings
+- Include version and author information in comments
+
+### SQL Function Structure
+
+```sql
+CREATE OR REPLACE FUNCTION function_name(
+  param1 TYPE,
+  param2 TYPE
+) RETURNS return_type
+LANGUAGE plpgsql
+SECURITY DEFINER -- or INVOKER depending on security requirements
+AS $$
+DECLARE
+  -- Variable declarations
+BEGIN
+  -- Function logic
+  RETURN result;
+EXCEPTION
+  WHEN condition THEN
+    -- Handle exception
+END;
+$$;
+
+COMMENT ON FUNCTION function_name(param1 TYPE, param2 TYPE) IS 
+'Description of function purpose and behavior';
+```
+
+### Best Practices
+
+1. **Idempotent**: Functions should be idempotent when possible
+2. **Transactional**: Ensure proper transaction handling
+3. **Security**: Use SECURITY DEFINER with caution
+4. **Performance**: Optimize for performance and consider execution plans
+5. **Testing**: Include tests for all database functions
+
+### Common Patterns
+
+- Use database functions for complex calculations
+- Implement business rules that must be enforced at the database level
+- Create helper functions for frequently used queries
+- Use functions to encapsulate complex joins or subqueries 

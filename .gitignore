@@ -10,6 +10,7 @@
 # Ignore all environment files (except templates).
 /.env*
 !/.env*.erb
+!/.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -96,4 +97,15 @@ yarn-debug.log*
 !config.ru
 !SOLID_PRINCIPLES.md
 !DEVELOPMENT_GUIDELINES.md
-!.cursorrules
+!.cursor/
+!.rubocop.yml
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*~
+.ruby-lsp/
+tags

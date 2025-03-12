@@ -3,7 +3,7 @@
 # AddAttributesToProfiles
 # This migration adds new attributes to the profiles table and ensures proper column setup
 class AddAttributesToProfiles < ActiveRecord::Migration[6.1]
-  # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def change
     # Add new columns
     add_column :profiles, :first_name, :string unless column_exists?(:profiles, :first_name)
@@ -23,5 +23,5 @@ class AddAttributesToProfiles < ActiveRecord::Migration[6.1]
     # Ensure description column exists
     add_column :profiles, :description, :text unless column_exists?(:profiles, :description)
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

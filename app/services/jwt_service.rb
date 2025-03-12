@@ -2,9 +2,10 @@
 
 # Service for handling JWT tokens
 class JwtService
-  # Use a hardcoded secret key for development - REPLACE IN PRODUCTION!
-  SECRET_KEY = '0bc347d905b7d9e4afd9395b8e9b3dc56646d6fc6205413d3f537dada4c978152d4' \
-               'f53eb08138cafeaafc577df724ad8e43114a12130463a93874180a84a6c4e'
+  # Use environment variable for secret key
+  SECRET_KEY = ENV.fetch('JWT_SECRET_KEY') do
+    raise 'JWT_SECRET_KEY environment variable is not set! Please configure it in your .env file.'
+  end
 
   def self.encode(payload, exp = 24.hours.from_now)
     payload = payload.dup

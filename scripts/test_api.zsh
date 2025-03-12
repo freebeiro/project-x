@@ -3,8 +3,20 @@
 # Change to the Rails root directory
 cd "$(dirname "$0")/.." || exit
 
+# Kill any existing Rails server on port 3005
+lsof -ti:3005 | xargs kill -9 2>/dev/null || true
+
+# Remove any stale pid file
+rm -f tmp/pids/server.pid
+
+# Load environment variables from .env if it exists
+if [ -f .env ]; then
+  echo "Loading environment variables from .env file"
+  export $(grep -v '^#' .env | xargs)
+fi
+
 # Start the Rails server in the background
-rails s -p 3005 -d
+RAILS_ENV=development rails s -p 3005 -d
 
 # Wait for the server to start
 sleep 5
