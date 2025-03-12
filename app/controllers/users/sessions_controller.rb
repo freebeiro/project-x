@@ -12,27 +12,9 @@ module Users
       Rails.logger.debug { "Login attempt - token from header: #{token}" }
 
       if token && valid_token?(token)
-        # User is already logged in with a valid token
-        user_id = JwtService.decode(token)['user_id']
-        user = User.find_by(id: user_id)
-
-        if user
-          Rails.logger.debug { "User already logged in with token: #{user.email}" }
-          render json: { error: 'You are already logged in.' }, status: :bad_request
-        else
-          Rails.logger.debug { "Valid token but user not found for ID: #{user_id}" }
-          render json: { error: 'Invalid token provided.' }, status: :unauthorized
-        end
+        handle_token_login(token)
       else
-        if token && !valid_token?(token)
-          Rails.logger.debug { 'Invalid token provided for login' }
-          render json: { error: 'Invalid token provided.' }, status: :unauthorized
-          return
-        end
-
-        # Proceed with normal authentication
-        Rails.logger.debug { 'Proceeding with regular authentication' }
-        handle_regular_authentication
+        handle_invalid_token_or_regular_auth(token)
       end
     end
 
@@ -40,33 +22,50 @@ module Users
       token = extract_token_from_header
       Rails.logger.debug { "Logout attempt - token: #{token}" }
 
-      if token.nil?
-        Rails.logger.debug { 'No token provided for logout' }
-        render json: { status: 401, message: 'No active session' }, status: :unauthorized
-        return
-      end
-
-      if TokenBlacklistService.blacklisted?(token)
-        Rails.logger.debug { 'Token already blacklisted' }
-        render json: { status: 401, message: 'No active session' }, status: :unauthorized
-        return
-      end
+      return render_invalid_session('No token provided for logout') if token.nil?
+      return render_invalid_session('Token already blacklisted') if TokenBlacklistService.blacklisted?(token)
 
       payload = JwtService.decode(token)
-      unless payload
-        Rails.logger.debug { 'Invalid token for logout' }
-        render json: { status: 401, message: 'No active session' }, status: :unauthorized
-        return
-      end
+      return render_invalid_session('Invalid token for logout') unless payload
 
       user = User.find_by(id: payload['user_id'])
-      unless user
-        Rails.logger.debug { 'User not found for logout' }
-        render json: { status: 401, message: 'No active session' }, status: :unauthorized
-        return
-      end
+      return render_invalid_session('User not found for logout') unless user
 
-      # All checks passed, blacklist the token
+      process_logout(token)
+    end
+
+    private
+
+    def handle_token_login(token)
+      user_id = JwtService.decode(token)['user_id']
+      user = User.find_by(id: user_id)
+
+      if user
+        Rails.logger.debug { "User already logged in with token: #{user.email}" }
+        render json: { error: 'You are already logged in.' }, status: :bad_request
+      else
+        Rails.logger.debug { "Valid token but user not found for ID: #{user_id}" }
+        render json: { error: 'Invalid token provided.' }, status: :unauthorized
+      end
+    end
+
+    def handle_invalid_token_or_regular_auth(token)
+      if token && !valid_token?(token)
+        Rails.logger.debug { 'Invalid token provided for login' }
+        render json: { error: 'Invalid token provided.' }, status: :unauthorized
+      else
+        # Proceed with normal authentication
+        Rails.logger.debug { 'Proceeding with regular authentication' }
+        handle_regular_authentication
+      end
+    end
+
+    def render_invalid_session(message)
+      Rails.logger.debug { message }
+      render json: { status: 401, message: 'No active session' }, status: :unauthorized
+    end
+
+    def process_logout(token)
       if TokenBlacklistService.blacklist(token)
         Rails.logger.debug { 'Token blacklisted successfully' }
         render json: { status: 200, message: 'Logged out successfully' }, status: :ok
@@ -76,10 +75,12 @@ module Users
       end
     end
 
-    private
-
     def handle_regular_authentication
       Rails.logger.debug { "Authenticating user with email: #{params.dig(:user, :email)}" }
+      authenticate_user_and_respond
+    end
+
+    def authenticate_user_and_respond
       self.resource = warden.authenticate!(auth_options)
 
       Rails.logger.debug { "User authenticated successfully: #{resource.email}" }

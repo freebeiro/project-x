@@ -1,0 +1,48 @@
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.2.0
+  Exclude:
+    - 'db/schema.rb'
+
+# Exclude BlockLength checks for specs, schema, and bundler files
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'bin/bundle'
+
+# Exclude method length checks for bundler files
+Metrics/MethodLength:
+  Exclude:
+    - 'bin/bundle'
+
+# Exclude complexity checks for bundler files
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'bin/bundle'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'bin/bundle'
+
+# Configure Layout/LineLength
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'bin/bundle'
+
+# Enable Rails specific checks
+require:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-factory_bot
+
+# Relax AbcSize a bit for controllers
+Metrics/AbcSize:
+  Max: 25
+  Exclude:
+    - 'app/controllers/**/*'
+
+# Increase the limit for memoized helpers in RSpec
+RSpec/MultipleMemoizedHelpers:
+  Max: 10 

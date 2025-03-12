@@ -13,28 +13,28 @@ class ApplicationController < ActionController::API
     token = extract_token_from_header
     Rails.logger.debug { "Authenticating with token: #{token}" }
 
-    if token.nil?
-      Rails.logger.debug { 'No token provided' }
-      return render_unauthorized('Unauthorized')
-    end
+    return render_unauthorized('Unauthorized') if invalid_authentication?(token)
 
-    if TokenBlacklistService.blacklisted?(token)
-      Rails.logger.debug { 'Token is blacklisted' }
-      return render_unauthorized('Unauthorized')
-    end
+    @current_user = authenticate_with_token(token)
+    render_unauthorized('Unauthorized') unless @current_user
+  end
 
-    payload = JwtService.decode(token)
+  def invalid_authentication?(token)
+    return true if token.nil?
+    return true if TokenBlacklistService.blacklisted?(token)
+
+    false
+  end
+
+  def authenticate_with_token(token)
+    payload = decode_token(token)
     Rails.logger.debug { "Decoded payload: #{payload}" }
 
-    unless payload
-      Rails.logger.debug { 'Invalid token' }
-      return render_unauthorized('Unauthorized')
-    end
+    return nil unless payload
 
-    @current_user = find_user(payload['user_id'])
-    Rails.logger.debug { "Current user: #{@current_user&.id}" }
-
-    render_unauthorized('Unauthorized') unless @current_user
+    user = find_user(payload['user_id'])
+    Rails.logger.debug { "Current user: #{user&.id}" }
+    user
   end
 
   def invalid_token?(token)
