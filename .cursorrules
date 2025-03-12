@@ -1,0 +1,66 @@
+# SW Dev Group Dating App - Root Rules for AI Assistant
+
+## Critical Rules - Strict Enforcement Required
+
+1. **No Code Duplication**: Before writing logic, verify it doesn't already exist elsewhere. If similar functionality exists, refactor to reuse that code even if it requires modification.
+
+2. **150-Line Limit**: Files CANNOT exceed 150 lines of code under ANY circumstances. Longer files indicate a violation of single responsibility and must be split into multiple files with focused responsibilities.
+
+3. **Comprehensive Testing**: All code must have associated specs to ensure it's fully tested.
+
+4. **Real-world Testing**: All requests must have a curl request test in our test script to verify real-world functionality.
+
+5. **No Extraneous Code**: Do not add ANY code that isn't directly related to requirements without explicit permission. This includes logs, comments, or even single words.
+
+6. **Documentation Requirements**: Document all new files with a summary of their purpose. Update documentation when making meaningful changes to existing files.
+
+7. **Failed Implementation Protocol**: When an implementation attempt fails, do not try again without first explaining what will be done differently in the next attempt.
+
+8. **Clean Failed Attempts**: When trying a new approach after a failed attempt, remove the failed implementation code first to avoid unused code.
+
+9. **Temporary Scripts**: Delete any test/debugging scripts after use to prevent unnecessary code in the codebase.
+
+10. **Code Cleanup**: After implementation, review the entire codebase and remove anything not necessary for the feature to run.
+
+11. **Completion Checklist**: Before considering a feature complete, ensure it is: tested, has adequate coverage, passes RuboCop, all curl tests pass, is properly committed following workflow guidelines, and all changes are documented.
+
+## General Best Practices
+
+- Prefer simple, readable solutions over complex ones
+- Validate all user inputs before processing
+- Always consider security implications of code changes
+- Follow Rails naming conventions and directory structure
+- Ensure code is GDPR, CCPA, and COPPA compliant
+- Add appropriate error handling for all operations
+- Comment complex logic but keep comments minimal and meaningful
+- Read existing code before making changes
+- Make surgical changes rather than wholesale rewrites
+
+## Git Workflow
+
+- Use feature branches for new features (format: `feature/feature-name`)
+- Use bugfix branches for bug fixes (format: `bugfix/issue-description`)
+- Write clear, descriptive commit messages in imperative mood
+- Keep commits focused on single logical changes
+- Rebase feature branches on main before submitting pull requests
+- No direct commits to main branch
+- Reference issue numbers in commit messages when applicable
+- Pull requests should be reviewed before merging
+
+## Definition of Done
+
+A feature is considered complete only when it meets ALL of the following criteria:
+
+- Code meets all requirements specified in the issue/task
+- All tests pass (RSpec unit tests and API test script)
+- New features include appropriate tests (unit, controller, integration)
+- Code passes all RuboCop checks with no warnings
+- Documentation is updated (README, API docs, comments)
+- Code is reviewed by at least one other developer
+- Performance implications have been considered
+- Security implications have been considered
+- The curl script passes all endpoint tests
+- Database migrations are reversible
+- No hardcoded sensitive data or credentials
+
+For more detailed guidance, see SOLID_PRINCIPLES.md for SOLID implementation guidelines and DEVELOPMENT_GUIDELINES.md for the comprehensive development workflow. 
