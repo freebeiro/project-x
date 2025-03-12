@@ -97,7 +97,7 @@ yarn-debug.log*
 !config.ru
 !SOLID_PRINCIPLES.md
 !DEVELOPMENT_GUIDELINES.md
-!.cursorrules
+!.cursor/
 !.rubocop.yml
 
 # IDE and editor specific files

@@ -1,0 +1,52 @@
+# Postgres SQL Style Guide
+
+## Description
+
+Guidelines for writing Postgres SQL.
+
+## Globs
+
+**/*.sql
+
+## General
+
+- Use lowercase for SQL reserved words to maintain consistency and readability.
+- Employ consistent, descriptive identifiers for tables, columns, and other database objects.
+- Use white space and indentation to enhance the readability of your code.
+- Store dates in ISO 8601 format (`yyyy-mm-ddThh:mm:ss.ssss`).
+- Include comments for complex logic, using '/* ... */' for block comments and '--' for line comments.
+
+## Naming Conventions
+
+- Use snake_case for table and column names
+- Prefer singular for table names (e.g., `user` not `users`)
+- Use descriptive names that clearly indicate the purpose
+- Prefix temporary tables with `tmp_`
+- Use consistent naming patterns across the database
+
+## Query Formatting
+
+- Place each major SQL clause on a new line
+- Indent subqueries and conditions
+- Align related expressions for readability
+- Use ANSI SQL joins instead of WHERE clause joins
+- Order JOIN clauses by table relationships
+
+## Example
+
+```sql
+SELECT
+    u.user_id,
+    u.first_name,
+    u.last_name,
+    p.profile_photo_url
+FROM
+    user u
+    INNER JOIN profile p ON u.user_id = p.user_id
+WHERE
+    u.is_active = true
+    AND p.visibility = 'public'
+ORDER BY
+    u.last_name,
+    u.first_name;
+``` 

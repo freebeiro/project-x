@@ -1,0 +1,68 @@
+# Database Migration Guidelines
+
+## Description
+
+Best practices for creating and managing database migrations in Rails.
+
+## Globs
+
+**/db/migrate/*.rb
+
+## Rules
+
+### Creating Tables
+
+- Use meaningful, singular table names
+- Include timestamps (`created_at`, `updated_at`) by default
+- Add foreign keys with proper references and indexes
+- Set appropriate NOT NULL constraints on required fields
+- Always define default values where appropriate
+
+### Example: Creating a New Table
+
+```ruby
+class CreateProfiles < ActiveRecord::Migration[7.0]
+  def change
+    create_table :profile do |t|
+      t.references :user, null: false, foreign_key: true, index: true
+      t.string :first_name, null: false
+      t.string :last_name, null: false
+      t.string :username, null: false
+      t.text :description
+      t.string :occupation
+      t.integer :age
+      
+      t.timestamps
+    end
+    
+    add_index :profile, :username, unique: true
+  end
+end
+```
+
+### Migration Safety
+
+1. **Reversibility**: Ensure all migrations are reversible
+2. **Data Protection**: Never destroy data without explicit backup steps
+3. **Batching**: Use batching for large data operations
+4. **Transaction Safety**: Wrap large operations in transactions
+5. **Testing**: Always test migrations in development before production
+
+### Adding Columns
+
+- Add annotations explaining purpose of columns
+- Group related columns in a single migration
+- Include appropriate validation in models
+
+### Removing Columns
+
+- Use a two-step process for safety:
+  1. First, deploy code that no longer uses the column
+  2. Then, create a migration to remove the column
+
+### Indexes
+
+- Add indexes for columns used in WHERE clauses
+- Add indexes for columns used in JOIN conditions
+- Add indexes for columns used in ORDER BY
+- Add unique indexes for uniqueness constraints 
