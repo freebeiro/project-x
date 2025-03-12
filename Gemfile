@@ -47,6 +47,9 @@ group :development, :test do
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rspec', require: false
   gem 'simplecov', require: false
+  
+  # Environment variables
+  gem 'dotenv-rails'
 end
 
 group :test do

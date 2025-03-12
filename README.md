@@ -121,7 +121,9 @@ Security measures include:
 4. **Environment Variables**:
    Create a `.env` file based on `.env.example` and configure:
    - Database credentials
-   - JWT secret key
+   - JWT secret key (required for authentication)
+     - Generate a secure key with `rails secret`
+     - Set as `JWT_SECRET_KEY` in your `.env` file
    - Other service API keys
 
 5. **Run the Server**:
