@@ -1,0 +1,50 @@
+# Cursor Rules for SW Dev Group Dating App
+
+# Code Structure
+- Follow SOLID principles in all code implementations
+- Keep controllers thin, use service objects for business logic
+- Organize code by feature when possible
+- Maintain clear separation of concerns
+
+# Ruby/Rails Guidelines
+- Use meaningful variable and method names
+- Keep methods short and focused on a single task
+- Use Ruby idioms when appropriate
+- Follow Rails conventions for model relationships
+- Use explicit over implicit code where clarity is needed
+
+# Documentation
+- Document all non-trivial methods and classes
+- Include examples for complex functionality
+- Update README when adding new features
+
+# Testing
+- Write tests for all new code
+- Maintain test coverage above 95%
+- Test both happy and unhappy paths
+- Use factories instead of fixtures
+
+# Security
+- Never hardcode secrets or credentials
+- Use environment variables for all sensitive information
+- Validate all user inputs
+- Follow authentication best practices
+- Implement proper authorization checks
+
+# Performance
+- Optimize database queries
+- Use indexes appropriately
+- Be mindful of N+1 query problems
+- Consider caching for frequently accessed data
+
+# API Design
+- Design RESTful APIs
+- Use consistent response formats
+- Provide appropriate status codes
+- Document all endpoints
+
+# Git Workflow
+- Work in feature branches
+- Write meaningful commit messages
+- Keep commits focused and atomic
+- Create Pull Requests for code review 
