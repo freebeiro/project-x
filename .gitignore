@@ -98,3 +98,14 @@ yarn-debug.log*
 !SOLID_PRINCIPLES.md
 !DEVELOPMENT_GUIDELINES.md
 !.cursorrules
+!.rubocop.yml
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*~
+.ruby-lsp/
+tags
