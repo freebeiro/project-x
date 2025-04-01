@@ -26,8 +26,10 @@ class ProfilesController < ApplicationController
   private
 
   def set_profile
+    # If accessing /profiles/:id, find profile by user_id from params[:id]
+    # If accessing /profile (singular), find current_user's profile
     @profile = if params[:id]
-                 Profile.find_by(id: params[:id])
+                 Profile.find_by(user_id: params[:id]) # Changed to find_by user_id
                else
                  current_user.profile
                end

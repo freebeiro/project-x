@@ -7,8 +7,8 @@ module Users
     respond_to :json
 
     def create
+      # Standard implementation using nested attributes permitted via sign_up_params
       build_resource(sign_up_params)
-      resource.build_profile(profile_params) if params[:profile].present?
       resource.save
       render_response(resource)
     end
@@ -16,12 +16,16 @@ module Users
     private
 
     def sign_up_params
-      params.require(:user).permit(:email, :password, :password_confirmation, :date_of_birth)
+      params.require(:user).permit(
+        :email, :password, :password_confirmation, :date_of_birth,
+        profile_attributes: %i[first_name last_name age username description occupation]
+      )
     end
 
-    def profile_params
-      params.fetch(:profile, {}).permit(:first_name, :last_name, :age, :username, :description, :occupation)
-    end
+    # profile_params method is no longer needed as attributes are handled via nesting
+    # def profile_params
+    #   params.fetch(:profile, {}).permit(:first_name, :last_name, :age, :username, :description, :occupation)
+    # end
 
     def render_response(resource)
       if resource.persisted?
@@ -39,12 +43,14 @@ module Users
       }, status: :created
     end
 
+    # Reverted argument name
     def render_error_response(resource)
       render json: {
         status: { message: error_message(resource) }
       }, status: :unprocessable_entity
     end
 
+    # Reverted argument name
     def user_data(user, token)
       {
         id: user.id,
@@ -55,8 +61,13 @@ module Users
       }
     end
 
+    # Reverted argument name
     def error_message(resource)
-      "User couldn't be created successfully. #{resource.errors.full_messages.to_sentence}"
+      # Combine errors from user and profile (if profile exists and has errors)
+      user_errors = resource.errors.full_messages
+      profile_errors = resource.profile&.errors&.full_messages || []
+      combined_errors = (user_errors + profile_errors).uniq
+      "User couldn't be created successfully. #{combined_errors.to_sentence}"
     end
   end
 end

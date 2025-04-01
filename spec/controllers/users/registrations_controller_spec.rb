@@ -3,10 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe Users::RegistrationsController, type: :controller do
-  let(:request) { ActionDispatch::TestRequest.create }
+  # No need for let(:request) as @request is available in controller specs
+  # let(:request) { ActionDispatch::TestRequest.create }
 
   before do
-    request.env['devise.mapping'] = Devise.mappings[:user]
+    # IMPORTANT: Set request env for Devise controller specs
+    # rubocop:disable RSpec/InstanceVariable
+    @request.env['devise.mapping'] = Devise.mappings[:user]
+    # rubocop:enable RSpec/InstanceVariable
   end
 
   describe 'POST #create' do
@@ -16,55 +20,92 @@ RSpec.describe Users::RegistrationsController, type: :controller do
           email: 'test@example.com',
           password: 'password123',
           password_confirmation: 'password123',
-          date_of_birth: 20.years.ago.to_date
-        },
-        profile: {
-          first_name: 'John',
-          last_name: 'Doe',
-          age: 25,
-          username: 'johndoe',
-          description: 'Test user',
-          occupation: 'Developer'
+          date_of_birth: 20.years.ago.to_date,
+          # Correctly nest profile_attributes under user
+          profile_attributes: {
+            first_name: 'John',
+            last_name: 'Doe',
+            age: 25,
+            username: 'johndoe',
+            description: 'Test user',
+            occupation: 'Developer'
+          }
         }
       }
     end
 
+    # This context specifically tests profile creation along with user
     context 'with valid parameters including profile' do
-      it 'creates a new User with a profile' do
-        expect do
-          post :create, params: valid_attributes
-        end.to change(User, :count).by(1).and change(Profile, :count).by(1)
-      end
-
-      it 'returns created status' do
-        post :create, params: valid_attributes
-        expect(response).to have_http_status(:created)
-      end
-
-      it 'returns includes profile data' do
-        post :create, params: valid_attributes
-        expect(response.parsed_body['data']['profile']).to include(
-          'first_name' => 'John',
-          'last_name' => 'Doe'
-        )
-      end
-    end
-
-    context 'with valid parameters' do
       it 'creates a new User' do
         expect do
           post :create, params: valid_attributes
         end.to change(User, :count).by(1)
       end
 
+      it 'creates a new Profile' do
+        expect do
+          post :create, params: valid_attributes
+        end.to change(Profile, :count).by(1)
+      end
+
       it 'returns created status' do
         post :create, params: valid_attributes
         expect(response).to have_http_status(:created)
       end
 
+      it 'returns profile data in response' do
+        post :create, params: valid_attributes
+        expect(response.parsed_body['data']['profile']).to include(
+          'first_name' => 'John',
+          'last_name' => 'Doe'
+          # Add other profile fields if needed
+        )
+      end
+
       it 'returns a JWT token' do
         post :create, params: valid_attributes
         expect(response.parsed_body['data']).to include('token')
+      end
+    end
+
+    # This context tests user creation without profile data (optional)
+    context 'with valid user parameters only' do
+      let(:user_only_attributes) do
+        {
+          user: {
+            email: 'test2@example.com',
+            password: 'password123',
+            password_confirmation: 'password123',
+            date_of_birth: 25.years.ago.to_date
+          }
+        }
+      end
+
+      it 'creates a new User' do
+        expect do
+          post :create, params: user_only_attributes
+        end.to change(User, :count).by(1)
+      end
+
+      it 'does not create a new Profile' do
+        expect do
+          post :create, params: user_only_attributes
+        end.not_to change(Profile, :count)
+      end
+
+      it 'returns created status' do
+        post :create, params: user_only_attributes
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'returns a JWT token' do
+        post :create, params: user_only_attributes
+        expect(response.parsed_body['data']).to include('token')
+      end
+
+      it 'returns null profile data' do
+        post :create, params: user_only_attributes
+        expect(response.parsed_body['data']['profile']).to be_nil
       end
     end
 
@@ -75,6 +116,12 @@ RSpec.describe Users::RegistrationsController, type: :controller do
         expect do
           post :create, params: invalid_attributes
         end.not_to change(User, :count)
+      end
+
+      it 'does not create a new Profile' do
+        expect do
+          post :create, params: invalid_attributes
+        end.not_to change(Profile, :count)
       end
 
       it 'returns unprocessable entity status' do
