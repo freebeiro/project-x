@@ -80,20 +80,39 @@ RSpec.describe GroupChatChannel, type: :channel do
       create(:group_membership, group:, user:)
       create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
       subscribe(group_id: group.id, event_id: event.id)
-      # Confirm subscription before performing action
+    end
+
+    # Added test specifically for confirmation
+    it 'confirms the subscription' do
       expect(subscription).to be_confirmed
     end
 
-    it 'creates a new message' do
-      expect do
-        perform :receive, data
-      end.to change(Message, :count).by(1)
+    # Split 'creates a new message' test
+    it 'increments the Message count' do
+      expect { perform :receive, data }.to change(Message, :count).by(1)
+    end
 
-      created_message = Message.last
-      expect(created_message.content).to eq(message_content)
-      expect(created_message.user).to eq(user)
-      expect(created_message.group).to eq(group)
-      expect(created_message.event).to eq(event)
+    context 'when message is created' do
+      # Perform the action once for subsequent checks
+      before { perform :receive, data }
+
+      let(:created_message) { Message.last }
+
+      it 'assigns the correct content' do
+        expect(created_message.content).to eq(message_content)
+      end
+
+      it 'assigns the correct user' do
+        expect(created_message.user).to eq(user)
+      end
+
+      it 'assigns the correct group' do
+        expect(created_message.group).to eq(group)
+      end
+
+      it 'assigns the correct event' do
+        expect(created_message.event).to eq(event)
+      end
     end
 
     it 'broadcasts the message to the stream' do

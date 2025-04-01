@@ -71,10 +71,17 @@ RSpec.describe Event, type: :model do
     end
 
     # Add test for group presence validation (implicit via belongs_to)
-    it 'requires a group' do
-      event = build(:event, organizer: user, group: nil)
-      expect(event).not_to be_valid
-      expect(event.errors[:group]).to include('must exist')
+    context 'when group is missing' do
+      let(:event_without_group) { build(:event, organizer: user, group: nil) }
+
+      it 'is not valid' do
+        expect(event_without_group).not_to be_valid
+      end
+
+      it 'has an error on group' do
+        event_without_group.valid? # Trigger validation
+        expect(event_without_group.errors[:group]).to include('must exist')
+      end
     end
   end
 end

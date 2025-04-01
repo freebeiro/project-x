@@ -151,12 +151,17 @@ RSpec.describe EventsController, type: :controller do
 
     # Add test for unauthorized delete
     context 'when unauthorized' do
-      it 'does not destroy the event and returns forbidden' do
-        other_user = create(:user)
-        event_unauthorized = create(:event, organizer: other_user, group:)
+      let(:other_user) { create(:user) }
+      let!(:event_unauthorized) { create(:event, organizer: other_user, group:) }
+
+      it 'does not destroy the event' do
         expect do
           delete :destroy, params: { group_id: group.id, id: event_unauthorized.to_param }
         end.not_to change(Event, :count)
+      end
+
+      it 'returns http forbidden' do
+        delete :destroy, params: { group_id: group.id, id: event_unauthorized.to_param }
         expect(response).to have_http_status(:forbidden)
       end
     end
