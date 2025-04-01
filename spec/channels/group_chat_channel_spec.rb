@@ -5,7 +5,8 @@ require 'rails_helper'
 RSpec.describe GroupChatChannel, type: :channel do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
-  let(:event) { create(:event, organizer: create(:user)) } # Event organizer can be different
+  # Associate event with the group
+  let(:event) { create(:event, organizer: create(:user), group:) }
 
   # Stub the connection and identify the current user
   before do

@@ -46,7 +46,9 @@ class GroupChatChannel < ApplicationCable::Channel
 
     unless @group && @event
       # Use a simpler log message here as group/event might be nil
-      logger.warn "User #{current_user&.id} failed subscription attempt - Group(#{params[:group_id]}) or Event(#{params[:event_id]}) Not Found"
+      log_msg = "User #{current_user&.id} failed subscription attempt - " \
+                "Group(#{params[:group_id]}) or Event(#{params[:event_id]}) Not Found"
+      logger.warn log_msg
       reject
       return false
     end

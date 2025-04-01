@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_01_102543) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_01_113356) do
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
     t.datetime "expires_at"
@@ -40,6 +40,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_01_102543) do
     t.integer "organizer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id", null: false
+    t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["name"], name: "index_events_on_name"
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
   end
@@ -119,6 +121,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_01_102543) do
 
   add_foreign_key "event_participations", "events"
   add_foreign_key "event_participations", "users"
+  add_foreign_key "events", "groups"
   add_foreign_key "events", "users", column: "organizer_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"

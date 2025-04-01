@@ -7,6 +7,8 @@ class Event < ApplicationRecord
   # Associations
   # The user who created the event.
   belongs_to :organizer, class_name: 'User'
+  # The group this event belongs to.
+  belongs_to :group
   # Join records linking this event to participating users.
   has_many :event_participations, dependent: :destroy
   # Users participating in this event through the join table.

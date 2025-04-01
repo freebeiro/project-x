@@ -10,8 +10,9 @@ RSpec.describe Message, type: :model do
   end
 
   let(:user) { create(:user) }
-  let(:group) { create(:group) } # Assumes a :group factory exists
-  let(:event) { create(:event, organizer: user) } # Assumes an :event factory exists
+  let(:group) { create(:group) }
+  # Add group association to event creation
+  let(:event) { create(:event, organizer: user, group:) }
 
   describe 'associations' do
     # Test that Message belongs_to user, group, and event

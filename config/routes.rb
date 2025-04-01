@@ -13,9 +13,21 @@ Rails.application.routes.draw do
   resources :groups do
     post 'group_membership', to: 'group_memberships#create'
     delete 'group_membership', to: 'group_memberships#destroy'
+
+    # Nested events within groups
+    resources :events do
+      # Nested messages within events (which are within groups)
+      namespace :api do
+        namespace :v1 do
+          resources :messages, only: %i[index create]
+        end
+      end
+      # Nested participations within events
+      resources :participations, only: %i[create index destroy], controller: 'event_participations'
+    end
   end
 
-  # Add these new routes
+  # Add these new routes (Friendships, Profiles)
   resources :friendships, only: %i[create destroy] do
     collection do
       put :accept
@@ -23,14 +35,20 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :profiles, only: [:show]
-  resource :profile, only: %i[show update]
+  resources :profiles, only: [:show] # Keep top-level route for viewing any profile by user_id
+  resource :profile, only: %i[show update] # Keep singular route for current_user's profile
 
-  # Keep any other existing routes
+  # Remove the separate top-level :events resource block as it's now nested under :groups
+  # resources :events do
+  #   resources :participations, only: %i[create index destroy], controller: 'event_participations'
+  # end
 
-  resources :events do
-    resources :participations, only: %i[create index destroy], controller: 'event_participations'
-  end
+  # Also add top-level API namespace for consistency if needed elsewhere (optional)
+  # namespace :api do
+  #   namespace :v1 do
+  #     # Other API routes can go here
+  #   end
+  # end
 
   get 'users/search', to: 'users#search'
 end

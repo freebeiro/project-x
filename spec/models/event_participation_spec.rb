@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe EventParticipation, type: :model do
   let(:user) { create(:user) }
-  let(:event) { create(:event, organizer: user) }
+  let(:group) { create(:group) } # Add group
+  # Add group association to event creation
+  let(:event) { create(:event, organizer: user, group:) }
 
   it 'is valid with user and event' do
     participation = build(:event_participation, user:, event:)
