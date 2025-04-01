@@ -15,6 +15,8 @@ class Event < ApplicationRecord
   has_many :participants, through: :event_participations, source: :user
   # Messages associated with this event's chat
   has_many :messages, dependent: :destroy
+  # Posts associated with this event
+  has_many :posts, dependent: :destroy
 
   # Validations
   validates :name, presence: true, length: { minimum: 3 }

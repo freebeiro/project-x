@@ -11,6 +11,8 @@ class Group < ApplicationRecord
   has_many :messages, dependent: :destroy
   # Events associated with this group
   has_many :events, dependent: :destroy
+  # Posts associated with this group
+  has_many :posts, dependent: :destroy
 
   validates :name, presence: true
   validates :privacy, inclusion: { in: %w[public private] }

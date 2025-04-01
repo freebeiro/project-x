@@ -613,6 +613,81 @@ check_status_code "$status_code" 403 "List Messages Unauthorized Status Code" ||
 echo "\n=== Chat System Testing Complete ==="
 
 
+echo "\n\n=== Testing Group Posts (HTTP Endpoint) ==="
+
+# Use the same group/event as chat tests for simplicity
+chat_group_id=$chat_group_id # Already defined
+chat_event_id=$chat_event_id # Already defined
+
+# Ensure main user is still authorized (joined group/event earlier)
+
+# Post a valid text-only post
+echo "\nPosting a valid text post:"
+post_content="This is a test post for event $chat_event_id in group $chat_group_id"
+response=$(curl -s -X POST "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d "{\"post\": {\"content\": \"$post_content\"}}")
+check_response "$response" "$post_content" "Post Valid Text Post" || all_passed=false
+post_id=$(echo "$response" | jq -r '.id')
+if [[ -z "$post_id" || "$post_id" == "null" ]]; then
+  echo "${RED}Fail: Could not extract post_id${NC}"
+  all_passed=false
+fi
+
+# Post without content or image (should fail)
+echo "\nPosting a blank post (should fail):"
+response=$(curl -s -X POST "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d '{"post": {}}') # Sending empty post object
+check_response "$response" "Content can't be blank" "Post Blank Post" || all_passed=false # Assumes validation message
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $token" \
+  -H "Content-Type: application/json" \
+  -d '{"post": {}}')
+check_status_code "$status_code" 422 "Post Blank Post Status Code" || all_passed=false
+
+# List posts for the event
+echo "\nListing posts:"
+response=$(curl -s -X GET "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $token")
+check_response "$response" "$post_content" "List Posts" || all_passed=false
+# Check if the response is an array and contains the post id
+if [[ $(echo "$response" | jq -r 'if type=="array" then .[] | select(.id=='$post_id') | .id else empty end') == $post_id ]]; then
+    echo "${GREEN}Pass: List Posts contains posted post${NC}"
+else
+    echo "${RED}Fail: List Posts does not contain posted post${NC}"
+    echo "Got: $response"
+    all_passed=false
+fi
+
+# Attempt to post when unauthorized (using friend token)
+echo "\nPosting post (unauthorized):"
+response=$(curl -s -X POST "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $friend_token" \
+  -H "Content-Type: application/json" \
+  -d '{"post": {"content": "Unauthorized post attempt"}}')
+check_response "$response" "Not authorized to access posts" "Post Post Unauthorized" || all_passed=false
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $friend_token" \
+  -H "Content-Type: application/json" \
+  -d '{"post": {"content": "Unauthorized post attempt"}}')
+check_status_code "$status_code" 403 "Post Post Unauthorized Status Code" || all_passed=false
+
+# Attempt to list posts when unauthorized (using friend token)
+echo "\nListing posts (unauthorized):"
+response=$(curl -s -X GET "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $friend_token")
+check_response "$response" "Not authorized to access posts" "List Posts Unauthorized" || all_passed=false
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${BASE_URL}/groups/${chat_group_id}/events/${chat_event_id}/api/v1/posts" \
+  -H "Authorization: Bearer $friend_token")
+check_status_code "$status_code" 403 "List Posts Unauthorized Status Code" || all_passed=false
+
+
+echo "\n=== Group Posts Testing Complete ==="
+
+
 # Attempt to login again (should fail as already logged in)
 echo "\nTesting Login when already logged in:"
 response=$(curl -s -X POST "${BASE_URL}/users/sign_in" \
