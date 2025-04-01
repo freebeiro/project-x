@@ -15,6 +15,15 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
 
+  # Event related associations
+  # Events organized by this user.
+  has_many :organized_events, class_name: 'Event', foreign_key: 'organizer_id', dependent: :destroy,
+                              inverse_of: :organizer
+  # Join records linking this user to events they are participating in.
+  has_many :event_participations, dependent: :destroy
+  # Events this user is participating in.
+  has_many :participating_events, through: :event_participations, source: :event
+
   accepts_nested_attributes_for :profile
 
   has_many :friendships, dependent: :destroy
