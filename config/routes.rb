@@ -18,14 +18,15 @@ Rails.application.routes.draw do
 
     # Nested events within groups
     resources :events do
-      # Nested messages within events (which are within groups)
-      namespace :api do
-        namespace :v1 do
-          resources :messages, only: %i[index create]
+        # Nested messages within events (which are within groups)
+        namespace :api do
+          namespace :v1 do
+            resources :messages, only: %i[index create]
+            resources :posts, only: %i[index create] # Added posts route
+          end
         end
-      end
-      # Nested participations within events
-      resources :participations, only: %i[create index destroy], controller: 'event_participations'
+        # Nested participations within events
+        resources :participations, only: %i[create index destroy], controller: 'event_participations'
     end
   end
 
