@@ -4,8 +4,11 @@ require 'rails_helper'
 
 RSpec.describe EventParticipationsController, type: :controller do
   let(:user) { create(:user) }
-  let(:event) { create(:event, capacity: 2) }
-  let(:valid_attributes) { { event_id: event.id, user_id: user.id } }
+  let(:group) { create(:group) } # Add group
+  # Associate event with group
+  let(:event) { create(:event, capacity: 2, group:) }
+  # valid_attributes might not be needed if not used directly in params
+  # let(:valid_attributes) { { event_id: event.id, user_id: user.id } }
 
   before do
     request.headers['Authorization'] = "Bearer #{JwtService.encode(user_id: user.id)}"
@@ -18,17 +21,17 @@ RSpec.describe EventParticipationsController, type: :controller do
       end
 
       it 'rejects access to index' do
-        get :index, params: { event_id: event.id }
+        get :index, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(response).to have_http_status(:unauthorized)
       end
 
       it 'rejects access to create' do
-        post :create, params: { event_id: event.id }
+        post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(response).to have_http_status(:unauthorized)
       end
 
       it 'rejects access to destroy' do
-        delete :destroy, params: { event_id: event.id, id: 1 }
+        delete :destroy, params: { group_id: group.id, event_id: event.id, id: 1 } # Add group_id
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -40,7 +43,7 @@ RSpec.describe EventParticipationsController, type: :controller do
     before do
       # Ensure participation is created before the request
       participation
-      get :index, params: { event_id: event.id }
+      get :index, params: { group_id: group.id, event_id: event.id } # Add group_id
     end
 
     it 'returns http success' do
@@ -56,12 +59,12 @@ RSpec.describe EventParticipationsController, type: :controller do
     context 'with valid params' do
       it 'creates a new participation' do
         expect do
-          post :create, params: { event_id: event.id }
+          post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         end.to change(EventParticipation, :count).by(1)
       end
 
       it 'returns success response' do
-        post :create, params: { event_id: event.id }
+        post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(response).to have_http_status(:created)
       end
     end
@@ -73,17 +76,17 @@ RSpec.describe EventParticipationsController, type: :controller do
 
       it 'does not create a new participation' do
         expect do
-          post :create, params: { event_id: event.id }
+          post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         end.not_to change(EventParticipation, :count)
       end
 
       it 'returns unprocessable entity status' do
-        post :create, params: { event_id: event.id }
+        post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'returns the correct error message' do
-        post :create, params: { event_id: event.id }
+        post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(json_response['error']).to eq('Event is at capacity')
       end
     end
@@ -93,7 +96,7 @@ RSpec.describe EventParticipationsController, type: :controller do
       # rubocop:disable RSpec/AnyInstance
       it 'returns unprocessable entity response' do
         allow_any_instance_of(EventParticipation).to receive(:save).and_return(false)
-        post :create, params: { event_id: event.id }
+        post :create, params: { group_id: group.id, event_id: event.id } # Add group_id
         expect(response).to have_http_status(:unprocessable_entity)
       end
       # rubocop:enable RSpec/AnyInstance
@@ -105,18 +108,18 @@ RSpec.describe EventParticipationsController, type: :controller do
 
     it 'destroys the participation record' do
       expect do
-        delete :destroy, params: { event_id: event.id, id: participation.id }
+        delete :destroy, params: { group_id: group.id, event_id: event.id, id: participation.id } # Add group_id
       end.to change(EventParticipation, :count).by(-1)
     end
 
     it 'returns no content status' do
-      delete :destroy, params: { event_id: event.id, id: participation.id }
+      delete :destroy, params: { group_id: group.id, event_id: event.id, id: participation.id } # Add group_id
       expect(response).to have_http_status(:no_content)
     end
 
     context 'when participation does not exist' do
       it 'returns not found' do
-        delete :destroy, params: { event_id: event.id, id: 999 }
+        delete :destroy, params: { group_id: group.id, event_id: event.id, id: 999 } # Add group_id
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -126,7 +129,7 @@ RSpec.describe EventParticipationsController, type: :controller do
       let!(:other_participation) { create(:event_participation, event:, user: other_user) }
 
       it 'returns not found' do
-        delete :destroy, params: { event_id: event.id, id: other_participation.id }
+        delete :destroy, params: { group_id: group.id, event_id: event.id, id: other_participation.id } # Add group_id
         expect(response).to have_http_status(:not_found)
       end
     end

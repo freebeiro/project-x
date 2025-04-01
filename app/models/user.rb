@@ -23,6 +23,8 @@ class User < ApplicationRecord
   has_many :event_participations, dependent: :destroy
   # Events this user is participating in.
   has_many :participating_events, through: :event_participations, source: :event
+  # Messages sent by this user.
+  has_many :messages, dependent: :destroy
 
   accepts_nested_attributes_for :profile
 

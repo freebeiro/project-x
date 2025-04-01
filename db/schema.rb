@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_31_164355) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_01_113356) do
   create_table "blacklisted_tokens", force: :cascade do |t|
     t.string "token"
     t.datetime "expires_at"
@@ -40,6 +40,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_31_164355) do
     t.integer "organizer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id", null: false
+    t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["name"], name: "index_events_on_name"
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
   end
@@ -76,6 +78,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_31_164355) do
     t.index ["admin_id"], name: "index_groups_on_admin_id"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.text "content", null: false
+    t.integer "user_id", null: false
+    t.integer "group_id", null: false
+    t.integer "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_messages_on_event_id"
+    t.index ["group_id", "event_id", "created_at"], name: "index_messages_on_group_id_and_event_id_and_created_at"
+    t.index ["group_id"], name: "index_messages_on_group_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "profiles", force: :cascade do |t|
     t.string "name"
     t.integer "age"
@@ -106,11 +121,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_31_164355) do
 
   add_foreign_key "event_participations", "events"
   add_foreign_key "event_participations", "users"
+  add_foreign_key "events", "groups"
   add_foreign_key "events", "users", column: "organizer_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "groups", "users", column: "admin_id"
+  add_foreign_key "messages", "events"
+  add_foreign_key "messages", "groups"
+  add_foreign_key "messages", "users"
   add_foreign_key "profiles", "users"
 end

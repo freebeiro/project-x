@@ -19,9 +19,14 @@ class EventsController < ApplicationController
     render json: @event
   end
 
-  # POST /events
+  # POST /groups/:group_id/events
   def create
-    @event = current_user.organized_events.new(event_params)
+    # Find the group first using the group_id from the nested route
+    find_group_or_render_not_found
+    return unless @group # Return if group wasn't found
+
+    # Build the event through the group association, also setting the organizer
+    @event = @group.events.new(event_params.merge(organizer: current_user))
 
     if @event.save
       render json: @event, status: :created
@@ -46,6 +51,12 @@ class EventsController < ApplicationController
   end
 
   private
+
+  # Helper to find group or render 404
+  def find_group_or_render_not_found
+    @group = Group.find_by(id: params[:group_id])
+    render json: { error: 'Group not found' }, status: :not_found unless @group
+  end
 
   def set_event
     @event = Event.find(params[:id])

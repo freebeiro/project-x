@@ -4,8 +4,8 @@ source 'https://rubygems.org'
 
 ruby '3.3.0'
 
-# Rails framework
-gem 'rails', '~> 7.1.4'
+# Rails framework (Allow latest 7.1.x patch)
+gem 'rails', '~> 7.1'
 
 # Database
 gem 'pg', '~> 1.2'
@@ -54,6 +54,7 @@ end
 
 group :test do
   gem 'rails-controller-testing'
+  gem 'shoulda-matchers', '~> 5.0' # Added for RSpec matchers
 end
 
 group :development do
