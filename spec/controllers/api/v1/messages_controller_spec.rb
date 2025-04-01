@@ -8,28 +8,20 @@ require 'rails_helper'
 RSpec.describe Api::V1::MessagesController, type: :controller do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
-  # Pass group_id instead of group object to factory
   let(:event) { create(:event, group_id: group.id) }
 
-  # Helper to simulate authentication
   before do
-    # Need helper from rails_helper or similar to set auth header
-    # Assuming authenticate_user(user) sets request.headers['Authorization']
     authenticate_user(user)
   end
 
   describe 'GET #index' do
-    # Use more descriptive names and 'let' instead of 'let!' unless eager creation is needed
     let(:old_message) { create(:message, user:, group:, event:, created_at: 1.hour.ago) }
     let(:new_message) { create(:message, user:, group:, event:, created_at: 30.minutes.ago) }
 
     context 'when authorized' do
-      # Create messages within the 'before' block as they are needed for the context
       before do
-        # Ensure user is authorized
         create(:group_membership, group:, user:)
         create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
-        # Create messages needed for this context
         old_message
         new_message
         get :index, params: { group_id: group.id, event_id: event.id }
@@ -39,7 +31,6 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
         expect(response).to have_http_status(:ok)
       end
 
-      # Split multi-expectation tests
       it 'returns the correct number of messages' do
         expect(response.parsed_body.size).to eq(2)
       end
@@ -52,15 +43,13 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
         expect(response.parsed_body.first['id']).to eq(old_message.id)
       end
 
-       it 'returns messages ordered by creation time (newest last)' do
-         expect(response.parsed_body.second['id']).to eq(new_message.id)
-       end
+      it 'returns messages ordered by creation time (newest last)' do
+        expect(response.parsed_body.second['id']).to eq(new_message.id)
+      end
 
       it 'includes user username' do
-        # Ensure user has a profile for username check
         user.create_profile(attributes_for(:profile).except(:user_id)) unless user.profile
-        get :index, params: { group_id: group.id, event_id: event.id } # Re-run get after profile creation
-        # Access username via nested profile in the JSON response
+        get :index, params: { group_id: group.id, event_id: event.id }
         expect(response.parsed_body.first['user']['profile']['username']).to eq(user.profile.username)
       end
     end
@@ -88,8 +77,19 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
     end
 
     context 'with invalid group_id' do
+      # Define unrelated_event at the context level
+      # It still needs a valid group and organizer to be created successfully
+      let(:other_group) { create(:group) }
+      let(:unrelated_event) { create(:event, group: other_group, organizer: create(:user)) }
+
       before do
-        get :index, params: { group_id: 999, event_id: event.id }
+        # Ensure user is authorized for the *actual* group/event first
+        # This setup might be slightly redundant for this specific test,
+        # but ensures consistency if other tests rely on it.
+        create(:group_membership, group:, user:)
+        create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
+        # Now make the request with an invalid group_id but a valid event_id
+        get :index, params: { group_id: 999, event_id: unrelated_event.id }
       end
 
       it 'returns http not found' do
@@ -99,6 +99,7 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
 
     context 'with invalid event_id' do
       before do
+        create(:group_membership, group:, user:) # User needs to be member of group
         get :index, params: { group_id: group.id, event_id: 999 }
       end
 
@@ -110,20 +111,16 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
 
   describe 'POST #create' do
     let(:valid_message_params) { { message: { content: 'New message!' } } }
-    let(:invalid_message_params) { { message: { content: '' } } } # Blank content
+    let(:invalid_message_params) { { message: { content: '' } } }
 
-    # Combine authorization setup for create contexts
-    shared_context 'when authorized for create' do
+    context 'when authorized' do
+      # Setup authorization within this context
       before do
         create(:group_membership, group:, user:)
         create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
       end
-    end
 
-    # Reduce nesting by using shared context
-    context 'with valid params and authorized user' do
-        include_context 'when authorized for create'
-
+      context 'with valid params' do
         let(:request_params) { { group_id: group.id, event_id: event.id }.merge(valid_message_params) }
 
         it 'creates a new Message' do
@@ -135,7 +132,6 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
           expect(response).to have_http_status(:created)
         end
 
-        # Split multi-expectation test
         context 'when message is created' do
           before { post :create, params: request_params }
 
@@ -155,38 +151,38 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
         end
 
         it 'broadcasts the message via Action Cable' do
-            # Ensure ActiveJob uses test adapter for channels
-            ActiveJob::Base.queue_adapter = :test
-            expect do
-              post :create, params: { group_id: group.id, event_id: event.id }.merge(valid_message_params)
-            end.to have_broadcasted_to("group_chat_#{group.id}_event_#{event.id}")
-              .with(hash_including(content: 'New message!'))
-        end
-    end
-
-    # Reduce nesting by using shared context
-    context 'with invalid params and authorized user' do
-      include_context 'when authorized for create'
-      let(:request_params) { { group_id: group.id, event_id: event.id }.merge(invalid_message_params) }
-
-      it 'does not create a new Message' do
-        expect { post :create, params: request_params }.not_to change(Message, :count)
-      end
-
-      it 'returns http unprocessable entity' do
-        post :create, params: request_params
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'does not broadcast via Action Cable' do
           ActiveJob::Base.queue_adapter = :test
           expect do
-            post :create, params: { group_id: group.id, event_id: event.id }.merge(invalid_message_params)
+            post :create, params: request_params
+          end.to have_broadcasted_to("group_chat_#{group.id}_event_#{event.id}")
+            .with(hash_including(content: 'New message!'))
+        end
+      end
+
+      context 'with invalid params' do
+        let(:request_params) { { group_id: group.id, event_id: event.id }.merge(invalid_message_params) }
+
+        it 'does not create a new Message' do
+          expect { post :create, params: request_params }.not_to change(Message, :count)
+        end
+
+        it 'returns http unprocessable entity' do
+          post :create, params: request_params
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'does not broadcast via Action Cable' do
+          ActiveJob::Base.queue_adapter = :test
+          expect do
+            post :create, params: request_params
           end.not_to have_broadcasted_to("group_chat_#{group.id}_event_#{event.id}")
+        end
       end
     end
 
     context 'when not authorized' do
+      # No setup needed here, user is not authorized by default
+
       it 'does not create a message' do
         expect do
           post :create, params: { group_id: group.id, event_id: event.id }.merge(valid_message_params)
