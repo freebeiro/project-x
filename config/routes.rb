@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
+
 Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: 'users/sessions',
@@ -52,3 +54,5 @@ Rails.application.routes.draw do
 
   get 'users/search', to: 'users#search'
 end
+
+# rubocop:enable Metrics/BlockLength
