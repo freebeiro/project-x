@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 
-# NOTE: Using type: :request specs is often preferred for API testing
-# as it tests the full stack including routing.
-# These controller specs focus on the controller logic in isolation.
 RSpec.describe Api::V1::MessagesController, type: :controller do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
@@ -77,18 +74,12 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
     end
 
     context 'with invalid group_id' do
-      # Define unrelated_event at the context level
-      # It still needs a valid group and organizer to be created successfully
       let(:other_group) { create(:group) }
       let(:unrelated_event) { create(:event, group: other_group, organizer: create(:user)) }
 
       before do
-        # Ensure user is authorized for the *actual* group/event first
-        # This setup might be slightly redundant for this specific test,
-        # but ensures consistency if other tests rely on it.
         create(:group_membership, group:, user:)
         create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
-        # Now make the request with an invalid group_id but a valid event_id
         get :index, params: { group_id: 999, event_id: unrelated_event.id }
       end
 
@@ -99,7 +90,7 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
 
     context 'with invalid event_id' do
       before do
-        create(:group_membership, group:, user:) # User needs to be member of group
+        create(:group_membership, group:, user:)
         get :index, params: { group_id: group.id, event_id: 999 }
       end
 
@@ -114,12 +105,12 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
     let(:invalid_message_params) { { message: { content: '' } } }
 
     context 'when authorized' do
-      # Setup authorization within this context
       before do
         create(:group_membership, group:, user:)
         create(:event_participation, event:, user:, status: EventParticipation::STATUS_ATTENDING)
       end
 
+      # Flattened structure to reduce nesting
       context 'with valid params' do
         let(:request_params) { { group_id: group.id, event_id: event.id }.merge(valid_message_params) }
 
@@ -132,22 +123,20 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
           expect(response).to have_http_status(:created)
         end
 
-        context 'when message is created' do
-          before { post :create, params: request_params }
+        # Test assignments after creation
+        it 'assigns message to correct user' do
+          post :create, params: request_params
+          expect(Message.last.user).to eq(user)
+        end
 
-          let(:created_message) { Message.last }
+        it 'assigns message to correct group' do
+          post :create, params: request_params
+          expect(Message.last.group).to eq(group)
+        end
 
-          it 'assigns message to correct user' do
-            expect(created_message.user).to eq(user)
-          end
-
-          it 'assigns message to correct group' do
-            expect(created_message.group).to eq(group)
-          end
-
-          it 'assigns message to correct event' do
-            expect(created_message.event).to eq(event)
-          end
+        it 'assigns message to correct event' do
+          post :create, params: request_params
+          expect(Message.last.event).to eq(event)
         end
 
         it 'broadcasts the message via Action Cable' do
@@ -181,8 +170,6 @@ RSpec.describe Api::V1::MessagesController, type: :controller do
     end
 
     context 'when not authorized' do
-      # No setup needed here, user is not authorized by default
-
       it 'does not create a message' do
         expect do
           post :create, params: { group_id: group.id, event_id: event.id }.merge(valid_message_params)
