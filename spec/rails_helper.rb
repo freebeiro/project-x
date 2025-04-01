@@ -84,6 +84,14 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
 end
 
+# Shoulda Matchers configuration
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
+
 # At the end of spec/rails_helper.rb
 
 RSpec.configure do |config|

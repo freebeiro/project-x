@@ -6,6 +6,9 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
+  # Mount Action Cable server
+  mount ActionCable.server => '/cable'
+
   # Existing routes
   resources :groups do
     post 'group_membership', to: 'group_memberships#create'

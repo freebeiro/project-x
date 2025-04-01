@@ -7,6 +7,9 @@ class Group < ApplicationRecord
   has_many :members, through: :group_memberships, source: :user
   has_many :users, through: :group_memberships
 
+  # Messages associated with this group
+  has_many :messages, dependent: :destroy
+
   validates :name, presence: true
   validates :privacy, inclusion: { in: %w[public private] }
   validates :member_limit, numericality: { greater_than: 0 }
