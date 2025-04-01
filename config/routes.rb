@@ -25,5 +25,9 @@ Rails.application.routes.draw do
 
   # Keep any other existing routes
 
+  resources :events do
+    resources :participations, only: %i[create index destroy], controller: 'event_participations'
+  end
+
   get 'users/search', to: 'users#search'
 end

@@ -76,3 +76,5 @@ end
 # gem "bcrypt", "~> 3.1.7"
 
 gem 'jwt'
+
+gem 'rspec_junit_formatter', '~> 0.6.0', group: :development
