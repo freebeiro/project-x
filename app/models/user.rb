@@ -5,7 +5,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  has_one :profile, dependent: :destroy
+  has_one :profile, dependent: :destroy # Removed autosave: true
 
   validates :date_of_birth, presence: true
   validate :minimum_age

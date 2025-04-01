@@ -83,10 +83,25 @@ rubocop_exit_code=$?
 echo "\nTesting User Registration:"
 response=$(curl -s -X POST "${BASE_URL}/users" \
   -H "Content-Type: application/json" \
-  -d '{"user": {"email": "testuser@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "Test", "last_name": "User", "age": 23, "username": "testuser", "description": "A test user", "occupation": "Tester"}}' )
+  -d '{
+    "user": {
+      "email": "testuser@example.com",
+      "password": "password123",
+      "password_confirmation": "password123",
+      "date_of_birth": "2000-01-01",
+      "profile_attributes": {
+        "first_name": "Test",
+        "last_name": "User",
+        "age": 23,
+        "username": "testuser",
+        "description": "A test user",
+        "occupation": "Tester"
+      }
+    }
+  }')
 check_response "$response" "Signed up successfully." "User Registration" || all_passed=false
 
-# User Registration (existing user)
+# User Registration (existing user) - Profile data not needed here as it fails on email uniqueness
 echo "\nTesting User Registration (existing user):"
 response=$(curl -s -X POST "${BASE_URL}/users" \
   -H "Content-Type: application/json" \
@@ -115,7 +130,22 @@ main_user_id=$(echo $response | jq -r '.id')
 echo "\nCreating a friend user:"
 response=$(curl -s -X POST "${BASE_URL}/users" \
   -H "Content-Type: application/json" \
-  -d '{"user": {"email": "friend@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "Friend", "last_name": "User", "age": 23, "username": "frienduser", "description": "A friend user", "occupation": "Friend"}}' )
+  -d '{
+    "user": {
+      "email": "friend@example.com",
+      "password": "password123",
+      "password_confirmation": "password123",
+      "date_of_birth": "2000-01-01",
+      "profile_attributes": {
+        "first_name": "Friend",
+        "last_name": "User",
+        "age": 23,
+        "username": "frienduser",
+        "description": "A friend user",
+        "occupation": "Friend"
+      }
+    }
+  }')
 check_response "$response" "Signed up successfully." "Friend User Registration" || all_passed=false
 
 # Search for friend user
@@ -185,11 +215,30 @@ check_response "$response" "first_name" "View Friend's Profile" || all_passed=fa
 echo "\nCreating a non-friend user:"
 response=$(curl -s -X POST "${BASE_URL}/users" \
   -H "Content-Type: application/json" \
-  -d '{"user": {"email": "nonfriend@example.com","password": "password123","password_confirmation": "password123","date_of_birth": "2000-01-01"}, "profile": {"first_name": "NonFriend", "last_name": "User", "age": 23, "username": "nonfrienduser", "description": "A non-friend user", "occupation": "NonFriend"}}' )
+  -d '{
+    "user": {
+      "email": "nonfriend@example.com",
+      "password": "password123",
+      "password_confirmation": "password123",
+      "date_of_birth": "2000-01-01",
+      "profile_attributes": {
+        "first_name": "NonFriend",
+        "last_name": "User",
+        "age": 23,
+        "username": "nonfrienduser",
+        "description": "A non-friend user",
+        "occupation": "NonFriend"
+      }
+    }
+  }')
 check_response "$response" "Signed up successfully." "Non-Friend User Registration" || all_passed=false
 
-# Extract non-friend user ID
-non_friend_user_id=$(echo $response | jq -r '.id')
+# Extract non-friend user ID (Corrected path)
+non_friend_user_id=$(echo "$response" | jq -r '.data.id')
+if [[ -z "$non_friend_user_id" || "$non_friend_user_id" == "null" ]]; then
+  echo "${RED}Fail: Could not extract non_friend_user_id${NC}"
+  all_passed=false
+fi
 
 # View non-friend's profile
 echo "\nViewing non-friend's profile:"
