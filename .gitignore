@@ -42,8 +42,8 @@
 # Ignore database configuration
 /config/database.yml
 
-# Ignore environment variables
-.env
+# Ignore environment variables (allow specific .env if needed, otherwise keep ignored)
+# .env # Keep this commented out or remove if .env should NOT be committed
 
 # Ignore coverage reports
 /coverage
@@ -74,12 +74,11 @@ yarn-debug.log*
 # Ignore Spring files
 /spring/*.pid
 
-# Ignore tool versions files
-.tool-versions
-**/.tool-versions
+# Ignore tool versions files (REMOVE these lines if .tool-versions SHOULD be committed)
+# .tool-versions
+# **/.tool-versions
 
 # Keep only specific directories
-/*
 !/app
 !/bin
 !/config
@@ -99,8 +98,11 @@ yarn-debug.log*
 !config.ru
 !SOLID_PRINCIPLES.md
 !DEVELOPMENT_GUIDELINES.md
+!DEVELOPMENT_WORKFLOW.md # Explicitly keep this
 !.cursor/
+!.clinerules/ # Explicitly keep this directory
 !.rubocop.yml
+!.tool-versions # Explicitly keep this file if it should be committed
 
 # IDE and editor specific files
 .idea/

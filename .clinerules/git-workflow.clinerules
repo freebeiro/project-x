@@ -1,0 +1,44 @@
+# Git Workflow Standards
+
+## Description
+
+Git workflow and version control standards for the SW Dev Group Dating App backend.
+
+## Globs
+
+**/*
+
+## Rules
+
+### Branch Strategy
+
+- Use feature branches for new features (format: `feature/feature-name`)
+- Use bugfix branches for bug fixes (format: `bugfix/issue-description`)
+- No direct commits to the main branch
+- Rebase feature branches on main before submitting pull requests
+
+### Commit Standards
+
+- Write clear, descriptive commit messages in imperative mood
+- Keep commits focused on single logical changes
+- Reference issue numbers in commit messages when applicable
+- Example format: `Fix: JWT token validation for expired tokens (#123)`
+
+### Pull Request Process
+
+- Create descriptive PRs with clear titles and descriptions
+- Include what changes were made and why
+- Link related issues
+- Ensure all tests pass before requesting review
+- Pull requests should be reviewed by at least one other developer
+- Address all review comments before merging
+
+### Code Review Criteria
+
+- Code meets all requirements specified in the issue/task
+- Code follows SOLID principles and project standards
+- All tests pass
+- Code passes linting with no warnings
+- Documentation is updated where necessary
+- Security implications have been considered
+- Performance implications have been considered

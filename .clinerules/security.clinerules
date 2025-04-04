@@ -1,0 +1,50 @@
+# Security Standards
+
+## Description
+
+Security practices and standards for the SW Dev Group Dating App backend.
+
+## Globs
+
+**/*.rb
+**/config/**/*.yml
+**/config/**/*.rb
+
+## Rules
+
+### Security Requirements
+
+1. **No Hardcoded Secrets**: Never hardcode secrets, credentials, or sensitive information in the codebase.
+
+2. **Environment Variables**: Use environment variables for all sensitive information, including:
+   - API keys
+   - Database credentials
+   - JWT secrets
+   - Any other tokens or credentials
+
+3. **Input Validation**: Always validate and sanitize user inputs to prevent:
+   - SQL injection
+   - Cross-site scripting (XSS)
+   - Command injection
+   - Other injection attacks
+
+4. **Authentication**: 
+   - Use secure token-based authentication (JWT)
+   - Implement proper token expiration
+   - Use secure password hashing
+   - Implement token blacklisting for logout
+
+5. **Authorization**:
+   - Implement proper authorization checks for all actions
+   - Use role-based access control where appropriate
+   - Never rely on security by obscurity
+
+6. **Data Protection**:
+   - Ensure code is GDPR, CCPA, and COPPA compliant
+   - Only collect necessary user data
+   - Implement proper data retention policies
+
+7. **Error Handling**:
+   - Do not expose sensitive information in error messages
+   - Log errors appropriately without exposing sensitive data
+   - Implement proper exception handling
