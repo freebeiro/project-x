@@ -198,6 +198,43 @@ chmod +x scripts/test_api.zsh && ./scripts/test_api.zsh
 - Keep controllers thin, models fat
 - Write comprehensive tests
 
+## AI-Assisted Development Workflow
+
+This project leverages an AI assistant (Cline, integrated within VS Code) to enhance the development process. This approach aims to improve efficiency, code quality, and adherence to best practices.
+
+### Our Approach
+
+The collaboration with the AI assistant follows an iterative cycle:
+
+1.  **Task Definition**: The developer defines a task or requirement (e.g., implement a feature, fix a bug, refactor code, write tests).
+2.  **AI Prompting**: The developer prompts the AI assistant with specific instructions, providing context like existing code, project standards (`.clinerules`), and desired outcomes.
+3.  **AI Generation & Execution**: The AI generates code, suggests solutions, writes tests, runs commands (like `bundle install`, `rspec`, `rubocop`), reads/writes files, or performs other development tasks using integrated tools.
+4.  **Developer Review**: The developer carefully reviews the AI's output, suggestions, and actions.
+5.  **Feedback & Refinement**: The developer provides feedback to the AI, requesting modifications, corrections, or alternative approaches. The AI refines its work based on this feedback.
+6.  **Integration**: The developer integrates the final, reviewed code into the project.
+
+### Areas of AI Assistance
+
+Throughout this project, the AI assistant has been utilized for various tasks, including:
+
+-   **Code Generation**: Creating boilerplate code, implementing features based on specifications (e.g., controllers, models, migrations, services).
+-   **Testing**: Generating RSpec tests (unit, controller, request specs), updating test scripts (`test_api.zsh`).
+-   **Refactoring**: Improving existing code structure, readability, and performance.
+-   **Debugging**: Identifying and fixing errors in code and tests.
+-   **Dependency Management**: Updating gems (`bundle update`), resolving conflicts.
+-   **Code Style & Linting**: Running `rubocop -A` and applying corrections to adhere to style guides.
+-   **Documentation**: Generating comments and updating documentation files (like this README).
+-   **Workflow Enforcement**: Following steps outlined in `DEVELOPMENT_WORKFLOW.md` and adhering to rules defined in `.clinerules`.
+
+### Benefits
+
+-   **Increased Velocity**: Faster implementation of features and resolution of issues.
+-   **Improved Code Quality**: Assistance in adhering to best practices, style guides, and testing standards.
+-   **Enhanced Consistency**: Ensuring consistent patterns and approaches across the codebase.
+-   **Exploration**: Quickly exploring different implementation options or refactoring strategies.
+
+**Note**: While the AI assistant significantly accelerates development, the developer remains responsible for guiding the process, reviewing all outputs, ensuring correctness, and making final decisions.
+
 ## Testing
 
 The application uses RSpec for testing:
