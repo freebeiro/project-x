@@ -31,7 +31,6 @@ RSpec.describe Post, type: :model do
     # --- End Pending Image tests ---
 
     context 'with neither content nor image' do
-      # Use let for subject when referenced explicitly
       let(:post_without_content_or_image) do
         build(:post, user:, group:, event:, content: nil, images: [])
       end
@@ -41,13 +40,13 @@ RSpec.describe Post, type: :model do
       end
 
       it 'has errors on content' do
-        post_without_content_or_image.valid? # Trigger validation
+        post_without_content_or_image.valid?
         expect(post_without_content_or_image.errors[:content]).to include("can't be blank")
       end
 
       it 'has errors on images' do
-         post_without_content_or_image.valid? # Trigger validation
-         expect(post_without_content_or_image.errors[:images]).to include("can't be blank")
+        post_without_content_or_image.valid?
+        expect(post_without_content_or_image.errors[:images]).to include("can't be blank")
       end
     end
 
