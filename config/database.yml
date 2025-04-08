@@ -1,0 +1,45 @@
+# PostgreSQL. Versions 9.3 and up are supported.
+#
+# Install the pg driver:
+#   gem install pg
+# On macOS with Homebrew:
+#   gem install pg -- --with-pg-config=/usr/local/opt/postgresql/bin/pg_config
+# On macOS with MacPorts:
+#   gem install pg -- --with-pg-config=/opt/local/lib/postgresql16/bin/pg_config
+# On Windows:
+#   gem install pg --platform=x64-mingw32
+#
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: localhost # Explicitly use TCP/IP connection
+  username: <%= ENV.fetch('PG_USER') { 'postgres' } %> # Default to 'postgres', use PG_USER env var if set
+  password: <%= ENV['PG_PASSWORD'] %> # Use PG_PASSWORD env var
+
+  # Optional: Specify port if not default 5432
+  # port: 5432
+
+development:
+  <<: *default
+  database: projectx_development
+  # Optionally add username/password/host here if different from default
+
+test:
+  <<: *default
+  database: projectx_test
+  # Optionally add username/password/host here if different from default
+
+# As with SQLite, you do not need to define this section. An SQLite database will
+# be used by default when running `rails db:migrate` or `rails db:setup` in the
+# production environment. If you do specify a database here, please note that it
+# will be copied over every time you run `rails db:migrate` or `rails db:setup` in
+# the production environment. For example:
+#
+# production:
+#   <<: *default
+#   database: projectx_production
+#   username: projectx
+#   password: <%= ENV['PROJECTX_DATABASE_PASSWORD'] %>

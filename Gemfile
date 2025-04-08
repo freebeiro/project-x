@@ -9,7 +9,7 @@ gem 'rails', '~> 7.1'
 
 # Database
 gem 'pg', '~> 1.2'
-gem 'sqlite3', '>= 1.4'
+# gem 'sqlite3', '>= 1.4' # Removed for PostgreSQL
 
 # Web server
 gem 'puma', '>= 5.0'

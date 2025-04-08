@@ -40,7 +40,7 @@
 /config/master.key
 
 # Ignore database configuration
-/config/database.yml
+# /config/database.yml # Commented out to allow tracking
 
 # Ignore environment variables
 .env
@@ -79,7 +79,7 @@ yarn-debug.log*
 **/.tool-versions
 
 # Keep only specific directories
-/*
+# /* # Removed overly broad rule
 !/app
 !/bin
 !/config
@@ -99,6 +99,7 @@ yarn-debug.log*
 !config.ru
 !SOLID_PRINCIPLES.md
 !DEVELOPMENT_GUIDELINES.md
+!/config/database.yml # Explicitly keep database config
 !.cursor/
 !.rubocop.yml
 
