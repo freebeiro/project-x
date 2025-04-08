@@ -1,0 +1,15 @@
+---
+description: Development workflow enforcement
+globs: **/*
+alwaysApply: true
+---
+# Mandatory Workflow Compliance
+
+## Rules
+- All feature development MUST follow the DEVELOPMENT_WORKFLOW.md checklist
+- Any deviation requires team lead approval via PR comment
+- Completed DEVELOPMENT_WORKFLOW.md checklists must be attached to PR descriptions
+- System automatically resets all checklist checkboxes when starting a new implementation attempt
+- Archive previous completed checklists in PR comments when iterating
+- System must verify completed steps before allowing new implementation starts
+- WIP commits must reference in-progress checklist items

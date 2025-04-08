@@ -1,0 +1,35 @@
+# Code Quality Standards
+
+## Description
+
+Critical code quality rules and standards for the SW Dev Group Dating App backend.
+
+## Globs
+
+**/*.rb
+
+## Rules
+
+### Critical Rules - Strict Enforcement Required
+
+1. **No Code Duplication**: Before writing logic, verify it doesn't already exist elsewhere. If similar functionality exists, refactor to reuse that code even if it requires modification.
+
+2. **150-Line Limit**: Files CANNOT exceed 150 lines of code under ANY circumstances. Longer files indicate a violation of single responsibility and must be split into multiple files with focused responsibilities.
+
+3. **Comprehensive Testing**: All code must have associated specs to ensure it's fully tested.
+
+4. **No Extraneous Code**: Do not add ANY code that isn't directly related to requirements without explicit permission. This includes logs, comments, or even single words.
+
+5. **Documentation Requirements**: Document all new files with a summary of their purpose. Update documentation when making meaningful changes to existing files.
+
+6. **Code Cleanup**: After implementation, review the entire codebase and remove anything not necessary for the feature to run.
+
+### Best Practices
+
+- Prefer simple, readable solutions over complex ones
+- Keep methods short and focused on a single task (max 10 lines)
+- Use meaningful variable and method names
+- Follow Rails naming conventions
+- Add appropriate error handling for all operations
+- Comment complex logic but keep comments minimal and meaningful
+- Make surgical changes rather than wholesale rewrites
