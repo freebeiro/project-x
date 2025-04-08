@@ -41,14 +41,14 @@ group :development, :test do
   gem 'debug', platforms: %i[mri windows]
 
   # Testing
+  gem 'brakeman', require: false # For security scanning
   gem 'factory_bot_rails'
   gem 'faker'
+  gem 'flay', require: false # For code duplication detection
   gem 'rspec-rails'
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rspec', require: false
   gem 'simplecov', require: false
-  gem 'flay', require: false # For code duplication detection
-  gem 'brakeman', require: false # For security scanning
 
   # Environment variables
   gem 'dotenv-rails'

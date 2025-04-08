@@ -43,9 +43,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18' # Or the version required by your project
-        cache: 'yarn' # Or 'npm' if you use npm
+        # cache: 'yarn' # Removed: yarn.lock not found in project root
 
-    # Add steps to install node modules if necessary
+    # Add steps to install node modules if necessary (e.g., if using npm or assets require it)
     # - name: Install node modules
     #   run: yarn install --frozen-lockfile
 
