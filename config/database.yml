@@ -15,11 +15,12 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: localhost # Explicitly use TCP/IP connection
+  username: <%= ENV.fetch('PG_USER') { 'postgres' } %> # Default to 'postgres', use PG_USER env var if set
+  password: <%= ENV['PG_PASSWORD'] %> # Use PG_PASSWORD env var
 
-  # Optional: Specify host, username, password if needed
-  # host: localhost
-  # username: postgres # Replace with your PostgreSQL username if different
-  # password: <%= ENV['PROJECTX_DATABASE_PASSWORD'] %> # Use ENV var for password
+  # Optional: Specify port if not default 5432
+  # port: 5432
 
 development:
   <<: *default
