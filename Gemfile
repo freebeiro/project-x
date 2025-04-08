@@ -63,6 +63,7 @@ group :development do
   # Linting and Code Quality
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-rake', require: false # Add missing dependency for CI
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
