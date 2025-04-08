@@ -37,7 +37,10 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.3.0' # Use the version from .ruby-version
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        bundler-cache: false # Disable cache to force clean install
+
+    - name: Install Gems Cleanly
+      run: bundle install --clean # Force clean install to avoid CI cache issues
 
     - name: Set up Node.js # Required for asset compilation if needed
       uses: actions/setup-node@v4
