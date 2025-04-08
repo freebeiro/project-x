@@ -47,6 +47,8 @@ group :development, :test do
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rspec', require: false
   gem 'simplecov', require: false
+  gem 'flay', require: false # For code duplication detection
+  gem 'brakeman', require: false # For security scanning
 
   # Environment variables
   gem 'dotenv-rails'

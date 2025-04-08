@@ -1,0 +1,87 @@
+name: Ruby CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: rails
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: rails_test
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://rails:password@localhost:5432/rails_test"
+      # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }} # Add this if you use encrypted credentials
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3.0' # Use the version from .ruby-version
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+    - name: Set up Node.js # Required for asset compilation if needed
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18' # Or the version required by your project
+        cache: 'yarn' # Or 'npm' if you use npm
+
+    # Add steps to install node modules if necessary
+    # - name: Install node modules
+    #   run: yarn install --frozen-lockfile
+
+    - name: Set up database schema
+      run: |
+        bundle exec rails db:prepare
+
+    - name: Run RuboCop
+      run: bundle exec rubocop --parallel
+
+    - name: Run RSpec tests (with SimpleCov coverage check)
+      run: bundle exec rspec
+
+    - name: Run API Test Script (api-testing.clinerules)
+      run: |
+        chmod +x scripts/test_api.zsh
+        ./scripts/test_api.zsh
+
+    - name: Check for Code Duplication (code-quality.clinerules)
+      run: bundle exec flay app/**/*.rb lib/**/*.rb || echo "Flay found duplication, check report." # Flay exits non-zero on duplication, allow continuation for now
+
+    - name: Run Security Scanner (security.clinerules)
+      run: bundle exec brakeman -q -w2 # Exit non-zero for medium/high warnings
+
+    - name: Check Line Limits (code-quality.clinerules)
+      run: |
+        find app lib -name '*.rb' -exec wc -l {} + | awk '$1 > 150 { print "ERROR: File " $2 " exceeds 150 lines (" $1 ")"; exit 1 }'
+
+    - name: Check Migration Reversibility (database-create-migrations.clinerules)
+      run: |
+        echo "Checking migration reversibility..."
+        bundle exec rails db:migrate # Ensure migrations are up
+        bundle exec rails db:rollback STEP=1 # Attempt to roll back the last migration
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Last migration is not reversible."
+          exit 1
+        fi
+        bundle exec rails db:migrate # Migrate back up to leave DB in correct state
+        echo "Migration reversibility check passed."
