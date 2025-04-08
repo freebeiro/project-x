@@ -54,7 +54,7 @@ jobs:
         bundle exec rails db:prepare
 
     - name: Run RuboCop
-      run: bundle exec rubocop --parallel
+      run: bundle exec rubocop --parallel -c .rubocop.yml # Explicitly specify config file
 
     - name: Run RSpec tests (with SimpleCov coverage check)
       run: bundle exec rspec
