@@ -11,11 +11,14 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -34,7 +37,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -48,8 +51,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
   end
 
   create_table "event_participations", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "event_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "event_id", null: false
     t.string "status", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -65,18 +68,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
     t.datetime "end_time", null: false
     t.string "location"
     t.integer "capacity", default: 10, null: false
-    t.integer "organizer_id", null: false
+    t.bigint "organizer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "group_id", null: false
+    t.bigint "group_id", null: false
     t.index ["group_id"], name: "index_events_on_group_id"
     t.index ["name"], name: "index_events_on_name"
     t.index ["organizer_id"], name: "index_events_on_organizer_id"
   end
 
   create_table "friendships", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "friend_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "friend_id", null: false
     t.string "status", default: "pending"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -86,8 +89,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
   end
 
   create_table "group_memberships", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "group_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["group_id"], name: "index_group_memberships_on_group_id"
@@ -100,7 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
     t.text "description"
     t.string "privacy", default: "public"
     t.integer "member_limit"
-    t.integer "admin_id", null: false
+    t.bigint "admin_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["admin_id"], name: "index_groups_on_admin_id"
@@ -108,9 +111,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
 
   create_table "messages", force: :cascade do |t|
     t.text "content", null: false
-    t.integer "user_id", null: false
-    t.integer "group_id", null: false
-    t.integer "event_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "group_id", null: false
+    t.bigint "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_messages_on_event_id"
@@ -121,9 +124,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
 
   create_table "posts", force: :cascade do |t|
     t.text "content"
-    t.integer "user_id", null: false
-    t.integer "group_id", null: false
-    t.integer "event_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "group_id", null: false
+    t.bigint "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_posts_on_event_id"
@@ -135,7 +138,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_01_150207) do
     t.string "name"
     t.integer "age"
     t.text "description"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "first_name"
