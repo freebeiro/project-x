@@ -27,7 +27,8 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: "postgres://rails:password@localhost:5432/rails_test"
-      # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }} # Add this if you use encrypted credentials
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }} # Ensure this secret is set in GitHub repo settings if needed
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}   # Ensure this secret is set in GitHub repo settings
 
     steps:
     - name: Checkout code # Removed duplicated line
