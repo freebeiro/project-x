@@ -62,6 +62,9 @@ jobs:
 
     - name: Run API Test Script (api-testing.clinerules)
       run: |
+        echo "Listing scripts directory:"
+        ls -l scripts/
+        echo "Attempting to execute script:"
         chmod +x scripts/test_api.zsh
         ./scripts/test_api.zsh
 
