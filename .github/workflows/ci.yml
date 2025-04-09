@@ -50,6 +50,12 @@ jobs:
     # - name: Install node modules
     #   run: yarn install --frozen-lockfile
 
+    - name: Set up PostgreSQL roles
+      run: |
+        psql -U rails -c "CREATE ROLE root WITH LOGIN SUPERUSER PASSWORD 'password';"
+      env:
+        PGPASSWORD: password
+
     - name: Set up database schema
       run: |
         bundle exec rails db:prepare
