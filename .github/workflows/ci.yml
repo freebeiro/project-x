@@ -60,13 +60,17 @@ jobs:
     - name: Run RSpec tests (with SimpleCov coverage check)
       run: bundle exec rspec
 
+    - name: Install Zsh
+      run: sudo apt-get update && sudo apt-get install -y zsh
+
     - name: Run API Test Script (api-testing.clinerules)
       run: |
-        echo "Listing scripts directory:"
-        ls -l scripts/
-        echo "Attempting to execute script:"
+        echo "Current working directory: $(pwd)"
+        echo "Scripts directory contents:"
+        ls -la scripts/
+        echo "Script path: $PWD/scripts/test_api.zsh"
         chmod +x scripts/test_api.zsh
-        ./scripts/test_api.zsh
+        /usr/bin/zsh scripts/test_api.zsh
 
     - name: Check for Code Duplication (code-quality.clinerules)
       run: bundle exec flay app/**/*.rb lib/**/*.rb || echo "Flay found duplication, check report." # Flay exits non-zero on duplication, allow continuation for now
