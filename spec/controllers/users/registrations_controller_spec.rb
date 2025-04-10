@@ -13,24 +13,16 @@ RSpec.describe Users::RegistrationsController, type: :controller do
     # rubocop:enable RSpec/InstanceVariable
   end
 
+  # Include FactoryBot syntax methods for cleaner calls
+  include FactoryBot::Syntax::Methods
+
   describe 'POST #create' do
+    # Use FactoryBot to generate valid attributes, ensuring uniqueness
+    let(:profile_attrs) { attributes_for(:profile).except(:user) } # Exclude user association
+    let(:user_attrs) { attributes_for(:user) }
     let(:valid_attributes) do
       {
-        user: {
-          email: 'test@example.com',
-          password: 'password123',
-          password_confirmation: 'password123',
-          date_of_birth: 20.years.ago.to_date,
-          # Correctly nest profile_attributes under user
-          profile_attributes: {
-            first_name: 'John',
-            last_name: 'Doe',
-            age: 25,
-            username: 'johndoe',
-            description: 'Test user',
-            occupation: 'Developer'
-          }
-        }
+        user: user_attrs.merge(profile_attributes: profile_attrs)
       }
     end
 
@@ -53,13 +45,15 @@ RSpec.describe Users::RegistrationsController, type: :controller do
         expect(response).to have_http_status(:created)
       end
 
+      # Split into two tests to avoid multiple expectations
       it 'returns profile data in response' do
         post :create, params: valid_attributes
-        expect(response.parsed_body['data']['profile']).to include(
-          'first_name' => 'John',
-          'last_name' => 'Doe'
-          # Add other profile fields if needed
-        )
+        expect(response.parsed_body['data']['profile']).to be_present
+      end
+
+      it 'returns correct profile username in response' do
+        post :create, params: valid_attributes
+        expect(response.parsed_body['data']['profile']['username']).to eq(profile_attrs[:username])
       end
 
       it 'returns a JWT token' do
@@ -70,16 +64,8 @@ RSpec.describe Users::RegistrationsController, type: :controller do
 
     # This context tests user creation without profile data (optional)
     context 'with valid user parameters only' do
-      let(:user_only_attributes) do
-        {
-          user: {
-            email: 'test2@example.com',
-            password: 'password123',
-            password_confirmation: 'password123',
-            date_of_birth: 25.years.ago.to_date
-          }
-        }
-      end
+      # Use FactoryBot for user attributes here too for consistency
+      let(:user_only_attributes) { { user: attributes_for(:user) } }
 
       it 'creates a new User' do
         expect do
