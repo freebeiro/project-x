@@ -92,7 +92,8 @@ jobs:
 
     - name: Check Line Limits (code-quality.clinerules)
       run: |
-        find app lib -name '*.rb' -exec wc -l {} + | awk '$1 > 150 { print "ERROR: File " $2 " exceeds 150 lines (" $1 ")"; exit 1 }'
+        # Find Ruby files, get line counts, and check if any exceed 150, ignoring the 'total' line from wc
+        find app lib -name '*.rb' -exec wc -l {} + | awk '$2 != "total" && $1 > 150 { print "ERROR: File " $2 " exceeds 150 lines (" $1 ")"; exit 1 }'
 
     - name: Check Migration Reversibility (database-create-migrations.clinerules)
       run: |
