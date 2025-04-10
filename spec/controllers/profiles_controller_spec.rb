@@ -30,48 +30,54 @@ RSpec.describe ProfilesController, type: :controller do
     end
 
     context 'when viewing a friend\'s profile' do
-      let(:friend_profile) { friend.profile }
+      # No need for friend_profile let anymore
+      # let(:friend_profile) { friend.profile } # Removed
 
       before do
+        # Factory creates profile automatically via after(:create) hook
+        # friend.create_profile(...) unless friend.profile # Removed redundant creation
         create(:friendship, :accepted, user:, friend:)
       end
 
       it 'returns http success' do
-        get :show, params: { id: friend_profile.id }
+        # Pass friend's user_id as params[:id]
+        get :show, params: { id: friend.id }
         expect(response).to have_http_status(:ok)
       end
 
       it 'includes first_name in the response' do
-        get :show, params: { id: friend_profile.id }
+        get :show, params: { id: friend.id }
         expect(response.parsed_body['data']).to include('first_name')
       end
 
       it 'includes last_name in the response' do
-        get :show, params: { id: friend_profile.id }
+        get :show, params: { id: friend.id }
         expect(response.parsed_body['data']).to include('last_name')
       end
     end
 
     context 'when viewing a non-friend\'s profile' do
-      let(:non_friend_profile) { non_friend.profile }
+      # No need for non_friend_profile let anymore
+      # let(:non_friend_profile) { non_friend.profile } # Removed
 
       it 'returns http success' do
-        get :show, params: { id: non_friend_profile.id }
+        # Pass non_friend's user_id as params[:id]
+        get :show, params: { id: non_friend.id }
         expect(response).to have_http_status(:ok)
       end
 
       it 'includes username in the response' do
-        get :show, params: { id: non_friend_profile.id }
+        get :show, params: { id: non_friend.id }
         expect(response.parsed_body['data']).to include('username')
       end
 
       it 'does not include first_name in the response' do
-        get :show, params: { id: non_friend_profile.id }
+        get :show, params: { id: non_friend.id }
         expect(response.parsed_body['data']).not_to include('first_name')
       end
 
       it 'does not include last_name in the response' do
-        get :show, params: { id: non_friend_profile.id }
+        get :show, params: { id: non_friend.id }
         expect(response.parsed_body['data']).not_to include('last_name')
       end
     end

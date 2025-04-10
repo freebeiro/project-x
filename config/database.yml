@@ -28,9 +28,8 @@ development:
   # Optionally add username/password/host here if different from default
 
 test:
-  <<: *default
-  database: projectx_test
-  # Optionally add username/password/host here if different from default
+  # Use DATABASE_URL in test environment (set in CI workflow)
+  url: <%= ENV['DATABASE_URL'] %>
 
 # As with SQLite, you do not need to define this section. An SQLite database will
 # be used by default when running `rails db:migrate` or `rails db:setup` in the

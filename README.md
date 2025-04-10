@@ -276,3 +276,4 @@ The application uses RSpec for testing:
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+

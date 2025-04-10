@@ -4,6 +4,7 @@ AllCops:
   TargetRubyVersion: 3.2.0
   Exclude:
     - 'db/schema.rb'
+    - 'vendor/**/*' # Exclude bundled gems
 
 # Exclude BlockLength checks for specs, schema, and bundler files
 Metrics/BlockLength:
@@ -45,4 +46,4 @@ Metrics/AbcSize:
 
 # Increase the limit for memoized helpers in RSpec
 RSpec/MultipleMemoizedHelpers:
-  Max: 10 
+  Max: 10

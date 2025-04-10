@@ -41,8 +41,10 @@ group :development, :test do
   gem 'debug', platforms: %i[mri windows]
 
   # Testing
+  gem 'brakeman', require: false # For security scanning
   gem 'factory_bot_rails'
   gem 'faker'
+  gem 'flay', require: false # For code duplication detection
   gem 'rspec-rails'
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rspec', require: false
@@ -61,6 +63,7 @@ group :development do
   # Linting and Code Quality
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-rake', require: false # Add missing dependency for CI
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
