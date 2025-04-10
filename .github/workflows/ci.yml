@@ -52,11 +52,13 @@ jobs:
 
     - name: Set up PostgreSQL
       run: |
-        psql -U postgres -c "CREATE USER ${{ secrets.POSTGRES_USER }} WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}' CREATEDB;"
-        psql -U postgres -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }};"
-        psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${{ secrets.POSTGRES_DB }} TO ${{ secrets.POSTGRES_USER }};"
+        # Connect to the default 'postgres' database as the 'postgres' superuser via TCP/IP
+        psql -h localhost -U postgres -c "CREATE USER ${{ secrets.POSTGRES_USER }} WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}' CREATEDB;"
+        psql -h localhost -U postgres -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }};"
+        psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${{ secrets.POSTGRES_DB }} TO ${{ secrets.POSTGRES_USER }};"
       env:
-        PGUSER: ${{ secrets.POSTGRES_USER }}
+        # Set PGPASSWORD for the postgres user for non-interactive login
+        PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
     - name: Set up database schema
       run: |
