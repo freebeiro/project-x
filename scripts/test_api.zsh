@@ -9,10 +9,15 @@ lsof -ti:3005 | xargs kill -9 2>/dev/null || true
 # Remove any stale pid file
 rm -f tmp/pids/server.pid
 
-# Load environment variables from .env if it exists
-if [ -f .env ]; then
-  echo "Loading environment variables from .env file"
-  export $(grep -v '^#' .env | xargs)
+# Load environment variables from .env if it exists AND we are NOT in CI
+if [ -f .env ] && [ -z "$CI" ]; then
+  echo "Loading environment variables from .env file (local)"
+  # Use a safer method to load .env that handles values with spaces/special chars
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" =~ ^[^#]*= ]]; then
+      export "$line"
+    fi
+  done < .env
 fi
 
 # Start the Rails server in the background
