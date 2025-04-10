@@ -20,11 +20,54 @@ if [ -f .env ] && [ -z "$CI" ]; then
   done < .env
 fi
 
-# Start the Rails server in the background
-RAILS_ENV=development rails s -p 3005 -d
+# --- CI Fixes ---
+# Ensure RAILS_ENV is set to test for this script's context
+export RAILS_ENV=test
+echo "RAILS_ENV set to $RAILS_ENV"
 
-# Wait for the server to start
-sleep 5
+# Setup test database BEFORE starting server
+echo "Setting up test database..."
+bundle exec rails db:drop RAILS_ENV=test || echo "Failed to drop DB (might not exist)" # Allow failure if DB doesn't exist
+bundle exec rails db:create RAILS_ENV=test
+bundle exec rails db:migrate RAILS_ENV=test
+echo "Database setup complete."
+
+# Start the Rails server in the background using the test environment
+echo "Starting Rails server in test environment on port 3005..."
+bundle exec rails s -p 3005 -e test -d
+# --- End CI Fixes ---
+
+# Wait for the server to start and become responsive
+echo "Waiting for server..."
+max_wait=30 # Maximum wait time in seconds
+interval=2  # Check interval
+elapsed=0
+server_ready=false
+while [ $elapsed -lt $max_wait ]; do
+  # Check if server process exists (optional, might be tricky with -d)
+  # pgrep -f 'rails s -p 3005 -e test' > /dev/null || { echo "Server process not found!"; break; }
+
+  # Check if server responds to a simple request
+  curl -s --head http://localhost:3005/users/sign_in > /dev/null # Use a known path
+  if [ $? -eq 0 ]; then
+    echo "Server is up!"
+    server_ready=true
+    break
+  fi
+  echo "Server not responding yet..."
+  sleep $interval
+  elapsed=$((elapsed + interval))
+done
+
+if [ "$server_ready" = false ]; then
+  echo "${RED}Server failed to start or become responsive within $max_wait seconds.${NC}"
+  # Optionally try to get logs
+  echo "Attempting to retrieve server logs:"
+  cat tmp/pids/server.pid | xargs -I {} ps {} || echo "Could not get process info."
+  tail log/test.log || echo "Could not read test.log"
+  exit 1
+fi
+# --- End Health Check ---
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -73,16 +116,7 @@ check_status_code() {
 # Variable to track overall success
 all_passed=true
 
-# Setup database
-rails db:drop && rails db:create && rails db:migrate
-
-# Run tests and linter
-bundle exec rspec
-bundle exec rubocop -A
-bundle exec rubocop -A
-
-# Run RuboCop and capture its exit code
-rubocop_exit_code=$?
+# Removed redundant DB setup, rspec, rubocop calls - handled in CI steps
 
 # User Registration
 echo "\nTesting User Registration:"
@@ -756,11 +790,11 @@ else
     # Optionally display offenses again or guide user
 fi
 
-# Overall result check
-if $all_passed && [ "$rubocop_exit_code" -eq 0 ]; then
-    echo "\n${GREEN}All API tests and RuboCop checks passed successfully!${NC}"
+# Overall result check (removed rubocop check)
+if $all_passed; then
+    echo "\n${GREEN}All API tests passed successfully!${NC}"
     exit 0 # Success
 else
-    echo "\n${RED}Some checks failed. Please review the output.${NC}"
+    echo "\n${RED}Some API tests failed. Please review the output.${NC}"
     exit 1 # Failure
 fi

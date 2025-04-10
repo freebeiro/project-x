@@ -79,7 +79,10 @@ jobs:
         ls -la scripts/
         echo "Script path: $PWD/scripts/test_api.zsh"
         chmod +x scripts/test_api.zsh
-        /usr/bin/zsh scripts/test_api.zsh
+        # Execute directly with zsh
+        zsh scripts/test_api.zsh
+      # Use zsh shell for this step
+      shell: zsh {0}
 
     - name: Check for Code Duplication (code-quality.clinerules)
       run: bundle exec flay app/**/*.rb lib/**/*.rb || echo "Flay found duplication, check report." # Flay exits non-zero on duplication, allow continuation for now
