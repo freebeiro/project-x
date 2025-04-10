@@ -48,10 +48,14 @@ class User < ApplicationRecord
   private
 
   def minimum_age
+    # Ensure date_of_birth is present before calculating age
     return if date_of_birth.blank?
 
-    return unless date_of_birth > 18.years.ago.to_date
+    # Check if the date of birth is less than 16 years ago
+    # Note: Using '<=' ensures that someone whose 16th birthday is today is allowed
+    return unless date_of_birth > 16.years.ago.to_date
 
-    errors.add(:date_of_birth, 'You should be over 18 years old.')
+    # Add an error if the user is younger than 16
+    errors.add(:date_of_birth, 'You must be at least 16 years old.')
   end
 end

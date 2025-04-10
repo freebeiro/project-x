@@ -93,16 +93,18 @@ Refactor the working code to meet all project standards, best practices, and rul
 
 Perform final checks and commit changes.
 
-- [ ] **Run Full Test Suite**: `bundle exec rspec`
-- [ ] **Run API Tests**: `./scripts/test_api.zsh`
+- [ ] **Run Pre-Push Checks (Simulate CI)**:
+    - [ ] `bundle exec rspec` (Ensure all tests pass)
+    - [ ] `bundle exec rubocop` (Ensure no offenses)
+    - [ ] `./scripts/test_api.zsh` (Ensure API tests pass, if included in CI)
 - [ ] **Check Coverage Report**: Verify coverage is still above target (>90%).
-- [ ] **Run RuboCop**: `bundle exec rubocop` (should have no offenses).
-- [ ] **Review Changes**: `git diff` to review all changes.
-- [ ] **Stage Changes**: `git add .`
+- [ ] **Check Status**: `git status` to review all modified/untracked files.
+- [ ] **Review Changes**: `git diff --staged` to review final changes being committed.
+- [ ] **Stage Changes**: `git add <specific files to commit>` (Ensure only intended files are staged).
 - [ ] **Commit Changes**: `git commit -m "Descriptive commit message (#issue-number)"`
 - [ ] **Push Changes**: `git push origin feature/feature-name`
 
-**✓ Completion Criteria**: All tests pass, code quality checks pass, and changes are committed and pushed.
+**✓ Completion Criteria**: All local CI checks pass, code quality checks pass, coverage is sufficient, and changes are committed and pushed.
 
 ## 8. Pull Request
 
