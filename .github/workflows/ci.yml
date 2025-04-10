@@ -13,9 +13,8 @@ jobs:
       postgres:
         image: postgres:14-alpine
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          # Set password ONLY for the default 'postgres' superuser
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
